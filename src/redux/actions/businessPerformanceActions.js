@@ -4,7 +4,7 @@ import {BUSINESS_PERFORMANCE_LIST_REQUEST,BUSINESS_PERFORMANCE_LIST_SUCCESS,BUSI
 
 //const base_url=process.env.REACT_APP_BASE_URL
 //const base_url='http://localhost:1000'
-const base_url='http://investment-api.nodescript-it.com'
+const base_url='https://investment-api.nodescript-it.com'
 
 
 

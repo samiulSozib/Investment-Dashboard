@@ -4,7 +4,7 @@ import {INVESTMENT_OFFER_LIST_REQUEST,INVESTMENT_OFFER_LIST_SUCCESS,INVESTMENT_O
 
 //const base_url=process.env.REACT_APP_BASE_URL
 //const base_url='http://localhost:1000'
-const base_url='http://investment-api.nodescript-it.com'
+const base_url='https://investment-api.nodescript-it.com'
 
 
 
