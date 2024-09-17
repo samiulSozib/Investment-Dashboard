@@ -1,0 +1,24 @@
+import {BUSINESS_PERFORMANCE_LIST_REQUEST,BUSINESS_PERFORMANCE_LIST_SUCCESS,BUSINESS_PERFORMANCE_LIST_FAIL} from '../constants/businessPerformanceConstants'
+
+
+const initialState={
+    businessPerformances:[],
+    error:null ,
+    loading:false
+}
+
+const businessesPerformanceReducer=(state=initialState,action)=>{
+    switch(action.type){
+        case BUSINESS_PERFORMANCE_LIST_REQUEST:
+            return {...state,loading:true}
+        case BUSINESS_PERFORMANCE_LIST_SUCCESS:
+            return {...state,loading:false,businessPerformances:action.payload}
+        case BUSINESS_PERFORMANCE_LIST_FAIL:
+            return {...state,loading:false,error:action.payload}
+        default:
+            return state
+    }
+}
+
+
+export default businessesPerformanceReducer
