@@ -30,7 +30,7 @@ const investmentRequestReducer=(state=initialState,action)=>{
             return {
                 ...state,
                 loading: false,
-                data: state.investmentRequests.filter((request) => request.id !== action.payload),
+                investmentRequests: state.investmentRequests.filter((request) => request.id !== action.payload),
             };
           
         case INVESTMENT_REQUEST_DELETE_FAIL:

@@ -8,7 +8,7 @@ import { mockPackages } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import {useDispatch,useSelector} from 'react-redux'
-import {newsBlogsList} from '../../redux/actions/newsBlogsActions'
+import {newsBlogsList,deleteNewsBlog} from '../../redux/actions/newsBlogsActions'
 import NewsBlogDetails from "./newsBlogsDetails";
 import { ToastContainer } from "react-toastify";
 
@@ -38,7 +38,7 @@ const NewsBlogs = () => {
   };
 
   const handleDelete = () => {
-    console.log(`Delete clicked for row with id: ${selectedRowId}`);
+    dispatch(deleteNewsBlog(selectedRowId))
     handleMenuClose();
   };
 
