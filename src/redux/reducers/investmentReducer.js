@@ -1,4 +1,10 @@
-import {INVESTMENT_LIST_REQUEST,INVESTMENT_LIST_SUCCESS,INVESTMENT_LIST_FAIL} from '../constants/investmentConstants'
+import {INVESTMENT_LIST_REQUEST,
+    INVESTMENT_LIST_SUCCESS,
+    INVESTMENT_LIST_FAIL,
+    INVESTMENT_DELETE_REQUEST,
+    INVESTMENT_DELETE_SUCCESS,
+    INVESTMENT_DELETE_FAIL,
+} from '../constants/investmentConstants'
 
 const initialState={
     investments:[],
@@ -14,6 +20,23 @@ const investmentReducer=(state=initialState,action)=>{
             return {...state,loading:false,investments:action.payload}
         case INVESTMENT_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
+        case INVESTMENT_DELETE_REQUEST:
+            return {
+                    ...state,
+                    loading: true,
+                    };
+        case INVESTMENT_DELETE_SUCCESS:
+            return {
+                    ...state,
+                    loading: false,
+                    investments: state.investments.filter((investment) => investment.id !== action.payload),
+                    };
+        case INVESTMENT_DELETE_FAIL:
+            return {
+                    ...state,
+                    loading: false,
+                    error: action.payload,
+                    };
         default:
             return state
     }

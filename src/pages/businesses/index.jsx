@@ -4,11 +4,16 @@ import { Box, IconButton, Menu, MenuItem, Button, Dialog, DialogTitle, DialogCon
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { tokens } from "../../theme";
-import { mockPackages } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 import {useDispatch,useSelector} from 'react-redux'
-import {businessList} from '../../redux/actions/businessAction'
+import {businessList,deleteBusiness,insertBusiness} from '../../redux/actions/businessAction'
+import {categoryList} from '../../redux/actions/categoryActions'
+
+import AddBusinessDialog from "./addBusinessDialog";
+import BusinessDetailsDialog from "./businessDetails";
 
 const Businesses = () => {
   const theme = useTheme();
@@ -16,6 +21,22 @@ const Businesses = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false); 
+
+
+  
+  const dispatch=useDispatch()
+  const {loading,error,businesses} =useSelector((state)=>state.businesses)
+  const {categories}=useSelector((state)=>state.category)
+
+  useEffect(()=>{
+    dispatch(businessList())
+    dispatch(categoryList())
+  },[dispatch])
+
+
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -33,13 +54,20 @@ const Businesses = () => {
   };
 
   const handleDelete = () => {
-    console.log(`Delete clicked for row with id: ${selectedRowId}`);
+    dispatch(deleteBusiness(selectedRowId))
     handleMenuClose();
   };
 
   const handleDetails = () => {
-    console.log(`Details clicked for row with id: ${selectedRowId}`);
+    const business = businesses.find((b) => b.id === selectedRowId);
+    setSelectedBusiness(business);
+    setOpenDetailsDialog(true); // Open dialog
     handleMenuClose();
+  };
+
+  const handleDetailsClose = () => {
+    setOpenDetailsDialog(false);
+    setSelectedBusiness(null);
   };
 
   const navigate = useNavigate();
@@ -48,9 +76,13 @@ const Businesses = () => {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    price: '',
-    duration: '',
-    return: ''
+    min_investment: '',
+    max_investment: '',
+    min_investment_period: '',
+    max_investment_period: '',
+    profit_share_ratio: '',
+    loss_share_ratio: '',
+    category_id: '',
   });
 
   const handleOpen = () => setOpen(true);
@@ -66,59 +98,9 @@ const Businesses = () => {
 
   const handleFormSubmit = () => {
     console.log('Form Data:', formData);
-    // Handle form submission here (e.g., API call to save the package)
+    dispatch(insertBusiness(formData))
     handleClose();
   };
-
-  // const columns = [
-  //   { field: "id", headerName: "ID", flex: 0.5 },
-  //   {
-  //     field: "name",
-  //     headerName: "Package",
-  //     flex: 1,
-  //     cellClassName: "name-column--cell",
-  //   },
-  //   {
-  //     field: "price",
-  //     headerName: "Price",
-  //     type: "number",
-  //     headerAlign: "left",
-  //     align: "left",
-  //   },
-  //   {
-  //     field: "duration",
-  //     headerName: "Duration",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "return",
-  //     headerName: "Return",
-  //     flex: 1,
-  //   },
-  //   {
-  //       field: "actions",
-  //       headerName: "Actions",
-  //       flex: 1,
-  //       renderCell: (params) => (
-  //         <Box>
-  //           <IconButton
-  //             onClick={(event) => handleMenuOpen(event, params.row.id)}
-  //           >
-  //             <MoreVertIcon />
-  //           </IconButton>
-  //           <Menu
-  //             anchorEl={anchorEl}
-  //             open={Boolean(anchorEl) && selectedRowId === params.row.id}
-  //             onClose={handleMenuClose}
-  //           >
-  //             <MenuItem onClick={handleEdit}>Edit</MenuItem>
-  //             <MenuItem onClick={handleDelete}>Delete</MenuItem>
-  //             <MenuItem onClick={handleDetails}>Details</MenuItem>
-  //           </Menu>
-  //         </Box>
-  //       ),
-  //     },
-  // ];
 
 
   const columns = [
@@ -156,7 +138,7 @@ const Businesses = () => {
       headerName: "Category", 
       flex: 1,
       renderCell:(params)=>{
-        return params.row.category.name
+        return params.row.category ? params.row.category.name : "N/A";
       }
     },
     {
@@ -184,16 +166,6 @@ const Businesses = () => {
   
   
 
-  const dispatch=useDispatch()
-  const {loading,error,businesses} =useSelector((state)=>state.businesses)
-
-  useEffect(()=>{
-    dispatch(businessList())
-  },[dispatch])
-
-  useEffect(()=>{
-    console.log(businesses)
-  },[])
 
   return (
     <Box m="20px">
@@ -214,7 +186,7 @@ const Businesses = () => {
               }
             }}
           >
-            Add Package
+            Add Business
           </Button>
         </Box>
       </Box>
@@ -258,143 +230,9 @@ const Businesses = () => {
         />
       </Box>
 
-      <Dialog 
-        open={open} 
-        onClose={handleClose}
-        sx={{
-          "& .MuiPaper-root": {
-            backgroundColor: colors.primary[400],
-            color: colors.grey[100],
-          }
-        }}
-      >
-        <DialogTitle sx={{ backgroundColor: colors.blueAccent[700], color: colors.grey[100] }}>
-          Create New Package
-        </DialogTitle>
-        <DialogContent sx={{ backgroundColor: colors.primary[400], color: colors.grey[100] }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            name="name"
-            label="Package Name"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.name}
-            onChange={handleChange}
-            sx={{ 
-              input: { color: colors.grey[100] },
-              label: { color: colors.grey[100] },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: colors.grey[100],
-                },
-                '&:hover fieldset': {
-                  borderColor: colors.blueAccent[700],
-                },
-              }
-            }}
-          />
-          <TextField
-            margin="dense"
-            name="price"
-            label="Price"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={formData.price}
-            onChange={handleChange}
-            sx={{ 
-              input: { color: colors.grey[100] },
-              label: { color: colors.grey[100] },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: colors.grey[100],
-                },
-                '&:hover fieldset': {
-                  borderColor: colors.blueAccent[700],
-                },
-              }
-            }}
-          />
-          <TextField
-            margin="dense"
-            name="duration"
-            label="Duration"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.duration}
-            onChange={handleChange}
-            sx={{ 
-              input: { color: colors.grey[100] },
-              label: { color: colors.grey[100] },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: colors.grey[100],
-                },
-                '&:hover fieldset': {
-                  borderColor: colors.blueAccent[700],
-                },
-              }
-            }}
-          />
-          <TextField
-            margin="dense"
-            name="return"
-            label="Return"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.return}
-            onChange={handleChange}
-            sx={{ 
-              input: { color: colors.grey[100] },
-              label: { color: colors.grey[100] },
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: colors.grey[100],
-                },
-                '&:hover fieldset': {
-                  borderColor: colors.blueAccent[700],
-                },
-              }
-            }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ backgroundColor: colors.primary[400] }}>
-          <Button 
-            onClick={handleClose} 
-            sx={{ 
-              backgroundColor: colors.redAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              "&:hover": {
-                backgroundColor: colors.blueAccent[800],
-              }
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleFormSubmit} 
-            sx={{ 
-              backgroundColor: colors.greenAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              "&:hover": {
-                backgroundColor: colors.greenAccent[800],
-              }
-            }}
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddBusinessDialog open={open} handleClose={handleClose} categories={categories} handleFormSubmit={handleFormSubmit} formData={formData} colors={colors} handleChange={handleChange}/>
+      <BusinessDetailsDialog open={openDetailsDialog} handleClose={handleDetailsClose} business={selectedBusiness} colors={colors}/>
+      <ToastContainer/>
     </Box>
   );
 };

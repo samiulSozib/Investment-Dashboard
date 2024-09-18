@@ -7,7 +7,9 @@ import { mockDataInvestors } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import {useDispatch,useSelector} from 'react-redux'
-import {investementRequestList} from '../../redux/actions/investmentRequestActions'
+import {investementRequestList,deleteInvestmentRequest} from '../../redux/actions/investmentRequestActions'
+import { ToastContainer } from "react-toastify";
+import InvestmentRequestDetails from "./investmentRequestDetails";
 
 const InvestmentRequests = () => {
   const theme = useTheme();
@@ -15,6 +17,9 @@ const InvestmentRequests = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedInvestmentRequest, setSelectedInvestmentRequest] = useState(null);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -32,13 +37,22 @@ const InvestmentRequests = () => {
   };
 
   const handleDelete = () => {
-    console.log(`Delete clicked for row with id: ${selectedRowId}`);
+    dispatch(deleteInvestmentRequest(selectedRowId))
     handleMenuClose();
   };
 
+
+
   const handleDetails = () => {
-    console.log(`Details clicked for row with id: ${selectedRowId}`);
+    const investmentRequest = investmentRequests.find((inv) => inv.id === selectedRowId);
+    setSelectedInvestmentRequest(investmentRequest);
+    setOpenDetailsDialog(true);
     handleMenuClose();
+  };
+
+  const handleCloseDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+    setSelectedInvestmentRequest(null);
   };
 
   const columns = [
@@ -107,9 +121,7 @@ const InvestmentRequests = () => {
     dispatch(investementRequestList())
   },[dispatch])
 
-  useEffect(()=>{
-    console.log(investmentRequests)
-  })
+
 
   return (
     <Box m="20px">
@@ -152,6 +164,8 @@ const InvestmentRequests = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+      <InvestmentRequestDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} investmentRequest={selectedInvestmentRequest} colors={colors} />
+        <ToastContainer/>
     </Box>
   );
 };

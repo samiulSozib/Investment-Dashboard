@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem,Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { tokens } from "../../theme";
-import { mockPackages } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import {useDispatch,useSelector} from 'react-redux'
-import {contractList} from '../../redux/actions/contractActions'
+import {contractList,deleteContract} from '../../redux/actions/contractActions'
+import ContractDetails from "./contractDetails";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Contracts = () => {
   const theme = useTheme();
@@ -16,6 +18,9 @@ const Contracts = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedContract, setSelectedContract] = useState(null);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -33,18 +38,25 @@ const Contracts = () => {
   };
 
   const handleDelete = () => {
-    console.log(`Delete clicked for row with id: ${selectedRowId}`);
+    dispatch(deleteContract(selectedRowId))
     handleMenuClose();
   };
 
-  const handleDetails = () => {
-    console.log(`Details clicked for row with id: ${selectedRowId}`);
-    handleMenuClose();
-  };
+
 
   const navigate = useNavigate();
 
-  
+  const handleDetails = () => {
+    const contract = contracts.find((cont) => cont.id === selectedRowId);
+    setSelectedContract(contract);
+    setOpenDetailsDialog(true);
+    handleMenuClose();
+  };
+
+  const handleCloseDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+    setSelectedContract(null);
+  };
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
@@ -159,7 +171,8 @@ const Contracts = () => {
         />
       </Box>
 
-
+      <ContractDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} contract={selectedContract} colors={colors} />
+      <ToastContainer/>
     </Box>
   );
 };

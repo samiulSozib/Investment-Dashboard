@@ -1,9 +1,19 @@
-import {CATEGORY_LIST_REQUEST,CATEGORY_LIST_SUCCESS,CATEGORY_LIST_FAIL} from '../constants/categoryConstants'
+import {
+    CATEGORY_LIST_REQUEST,
+    CATEGORY_LIST_SUCCESS,
+    CATEGORY_LIST_FAIL,
+    CATEGORY_CREATE_REQUEST,
+    CATEGORY_CREATE_SUCCESS,
+    CATEGORY_CREATE_FAIL,
+    CATEGORY_DELETE_REQUEST,
+    CATEGORY_DELETE_SUCCESS,
+    CATEGORY_DELETE_FAIL 
+} from '../constants/categoryConstants'
 
 const initialState={
     categories:[],
     error:null ,
-    loading:false
+    loading:false,
 }
 
 const categoryReducer=(state=initialState,action)=>{
@@ -14,6 +24,19 @@ const categoryReducer=(state=initialState,action)=>{
             return {...state,loading:false,categories:action.payload}
         case CATEGORY_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
+        case CATEGORY_CREATE_REQUEST:
+            return {...state,loading:true}
+        case CATEGORY_CREATE_SUCCESS:
+            return {...state,loading:false,categories:[...state.categories,action.payload]}
+        case CATEGORY_CREATE_FAIL:
+            return {...state,loading:false,error:action.payload}
+        case CATEGORY_DELETE_REQUEST:
+            return { ...state, loading: true };
+        case CATEGORY_DELETE_SUCCESS:
+            return { ...state, loading: false, categories: state.categories.filter(category => category.id !== action.payload) 
+            };
+        case CATEGORY_DELETE_FAIL:
+            return { ...state, loading: false, error: action.payload };
         default:
             return state
     }

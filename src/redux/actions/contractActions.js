@@ -1,5 +1,14 @@
 import axios from "axios";
-import {CONTRACT_LIST_REQUEST,CONTRACT_LIST_SUCCESS,CONTRACT_LIST_FAIL} from '../constants/contractConstants'
+import {
+    CONTRACT_LIST_REQUEST,
+    CONTRACT_LIST_SUCCESS,
+    CONTRACT_LIST_FAIL,
+    CONTRACT_DELETE_REQUEST,
+    CONTRACT_DELETE_SUCCESS,
+    CONTRACT_DELETE_FAIL,
+
+} from '../constants/contractConstants'
+import { toast } from "react-toastify";
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
@@ -21,3 +30,19 @@ export const contractList=()=>{
         }
     }
 }
+
+
+export const deleteContract = (id) => async (dispatch) => {
+    dispatch({ type: CONTRACT_DELETE_REQUEST });
+    try {
+      await axios.delete(`${base_url}/contracts/${id}`);
+      dispatch({ type: CONTRACT_DELETE_SUCCESS, payload: id });
+      toast.success("Contract Deleted Successfully")
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+      dispatch({
+        type: CONTRACT_DELETE_FAIL,
+        payload:errorMessage});
+      toast.error(`Error : ${errorMessage}`)
+    }
+  };

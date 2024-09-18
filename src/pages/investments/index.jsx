@@ -6,8 +6,11 @@ import { tokens } from "../../theme";
 import { mockDataInvestors } from "../../data/mockData";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 import {useDispatch,useSelector} from 'react-redux'
-import {investmentList} from '../../redux/actions/investmentAction'
+import {investmentList,deleteInvestment} from '../../redux/actions/investmentAction'
+import InvestmentDetails from "./investmentDetails";
 
 const InvestmentRequests = () => {
   const theme = useTheme();
@@ -15,6 +18,9 @@ const InvestmentRequests = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedInvestment, setSelectedInvestment] = useState(null);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -32,82 +38,24 @@ const InvestmentRequests = () => {
   };
 
   const handleDelete = () => {
-    console.log(`Delete clicked for row with id: ${selectedRowId}`);
+    dispatch(deleteInvestment(selectedRowId))
     handleMenuClose();
   };
 
   const handleDetails = () => {
-    console.log(`Details clicked for row with id: ${selectedRowId}`);
+    const investment = investments.find((inv) => inv.id === selectedRowId);
+    setSelectedInvestment(investment);
+    setOpenDetailsDialog(true);
     handleMenuClose();
+  };
+
+  const handleCloseDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+    setSelectedInvestment(null);
   };
 
   
 
-  // const columns = [
-  //   { field: "id", headerName: "ID", flex: 0.5 },
-  //   { field: "registrarId", headerName: "Registrar ID" },
-  //   {
-  //     field: "name",
-  //     headerName: "Name",
-  //     flex: 1,
-  //     cellClassName: "name-column--cell",
-  //   },
-  //   {
-  //     field: "age",
-  //     headerName: "Age",
-  //     type: "number",
-  //     headerAlign: "left",
-  //     align: "left",
-  //   },
-  //   {
-  //     field: "phone",
-  //     headerName: "Phone Number",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "email",
-  //     headerName: "Email",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "address",
-  //     headerName: "Address",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "city",
-  //     headerName: "City",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "zipCode",
-  //     headerName: "Zip Code",
-  //     flex: 1,
-  //   },
-  //   {
-  //     field: "actions",
-  //     headerName: "Actions",
-  //     flex: 1,
-  //     renderCell: (params) => (
-  //       <Box>
-  //         <IconButton
-  //           onClick={(event) => handleMenuOpen(event, params.row.id)}
-  //         >
-  //           <MoreVertIcon />
-  //         </IconButton>
-  //         <Menu
-  //           anchorEl={anchorEl}
-  //           open={Boolean(anchorEl) && selectedRowId === params.row.id}
-  //           onClose={handleMenuClose}
-  //         >
-  //           <MenuItem onClick={handleEdit}>Edit</MenuItem>
-  //           <MenuItem onClick={handleDelete}>Delete</MenuItem>
-  //           <MenuItem onClick={handleDetails}>Details</MenuItem>
-  //         </Menu>
-  //       </Box>
-  //     ),
-  //   },
-  // ];
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
@@ -135,7 +83,7 @@ const InvestmentRequests = () => {
       flex: 1,
     },
     {
-      fild:'user.name',
+      field:'user.name',
       headerName:"Investor",
       flex:1,
       renderCell:(params)=>{
@@ -143,7 +91,7 @@ const InvestmentRequests = () => {
       }
     },
     {
-      fild:'business.name',
+      field:'business.name',
       headerName:"Business",
       flex:1,
       renderCell:(params)=>{
@@ -186,7 +134,7 @@ const InvestmentRequests = () => {
 
   return (
     <Box m="20px">
-      <Header title="Investors" subtitle="List of Investors" />
+      <Header title="Investmetns" subtitle="List of Investments" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -225,6 +173,9 @@ const InvestmentRequests = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
+
+        <InvestmentDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} investment={selectedInvestment} colors={colors} />
+        <ToastContainer/>
     </Box>
   );
 };
