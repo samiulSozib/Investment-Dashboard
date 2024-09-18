@@ -9,6 +9,8 @@ import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import {useDispatch,useSelector} from 'react-redux'
 import {newsBlogsList} from '../../redux/actions/newsBlogsActions'
+import NewsBlogDetails from "./newsBlogsDetails";
+import { ToastContainer } from "react-toastify";
 
 const NewsBlogs = () => {
   const theme = useTheme();
@@ -16,6 +18,9 @@ const NewsBlogs = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [selectedNewsBlog, setSelectedNewsBlog] = useState(null);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -38,8 +43,16 @@ const NewsBlogs = () => {
   };
 
   const handleDetails = () => {
-    console.log(`Details clicked for row with id: ${selectedRowId}`);
+    const newsBlog = newsBlogs.find((blog) => blog.id === selectedRowId);
+    setSelectedNewsBlog(newsBlog);
+    setOpenDetailsDialog(true);
     handleMenuClose();
+  };
+  
+  // Close dialog
+  const handleCloseDetailsDialog = () => {
+    setOpenDetailsDialog(false);
+    setSelectedNewsBlog(null);
   };
 
   const navigate = useNavigate();
@@ -146,7 +159,8 @@ const NewsBlogs = () => {
           components={{ Toolbar: GridToolbar }}
         />
       </Box>
-
+      <NewsBlogDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} newsBlog={selectedNewsBlog} colors={colors} />
+        <ToastContainer/>
 
     </Box>
   );
