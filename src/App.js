@@ -20,6 +20,8 @@ import BestPerformingBusiness from "./pages/bestPerformingBusiness";
 
 import ProtectedRoute from './util/protectedRoute';
 import NotFound from "./util/NotFound";
+import InvestmentRequest from "./pages/investmentRequest";
+import Users from "./pages/users";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -46,7 +48,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
-              <Route path="/investment-requests" element={<ProtectedRoute><InvestmentRequests/></ProtectedRoute>} />
+              <Route path="/investment-requests" element={<ProtectedRoute><InvestmentRequest/></ProtectedRoute>} />
               <Route path="/businesses" element={<ProtectedRoute><Businesses/></ProtectedRoute>} />
               <Route path="/contracts" element={<ProtectedRoute><Contracts/></ProtectedRoute>} />
               <Route path="/investments" element={<ProtectedRoute><Investments/></ProtectedRoute>} />
@@ -56,7 +58,7 @@ function App() {
               <Route path="/business-performance" element={<ProtectedRoute><BusinessPerformce/></ProtectedRoute>} />
               <Route path="/best-performing-investor" element={<ProtectedRoute><BestPerformingInvestor/></ProtectedRoute>} />
               <Route path="/best-performing-business" element={<ProtectedRoute><BestPerformingBusiness/></ProtectedRoute>} />
-
+              <Route path="/users" element={<ProtectedRoute><Users/></ProtectedRoute>} />
             
             </Routes>
           </main>

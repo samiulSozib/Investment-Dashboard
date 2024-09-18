@@ -12,20 +12,17 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
-import {useDispatch,useSelector} from 'react-redux'
-import {businessList} from '../../redux/actions/businessAction'
-import { useEffect } from "react";
+
+
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const dispatch=useDispatch()
-  const {loading,error,businesses} =useSelector((state)=>state.businesses)
 
-  useEffect(()=>{
-    dispatch(businessList())
-  },[dispatch])
+
+
+
 
 
 
@@ -50,6 +47,8 @@ const Dashboard = () => {
           </Button>
         </Box>
       </Box>
+
+   
 
       {/* GRID & CHARTS */}
       <Box

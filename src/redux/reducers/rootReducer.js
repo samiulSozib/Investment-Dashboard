@@ -10,6 +10,7 @@ import bestPerformingBusinessReducer from './bestPerformingBusinessReducer'
 import bestPerformingInvestorsReducer from './bestPerformingInvestorReducer'
 import newsBlogsReducer from './newsBlogsReducer'
 import categoryReducer from './categoryReducer'
+import usersReducer from './userReducer'
 
 const rootReducer=combineReducers({
     auth:authReducer,
@@ -22,7 +23,8 @@ const rootReducer=combineReducers({
     bestPerformingBusiness:bestPerformingBusinessReducer,
     bestPerformingInvestors:bestPerformingInvestorsReducer,
     newsBlogs:newsBlogsReducer,
-    category:categoryReducer
+    category:categoryReducer,
+    user:usersReducer
 })
 
 export default rootReducer

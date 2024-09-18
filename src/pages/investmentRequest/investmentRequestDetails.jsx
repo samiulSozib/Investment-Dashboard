@@ -5,7 +5,7 @@ import TimerIcon from '@mui/icons-material/Timer';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import BusinessIcon from '@mui/icons-material/Business';
 
-const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors }) => {
+const InvestmentRequestDetails = ({ open, handleClose, investmentRequestData, colors }) => {
   return (
     <Dialog
       open={open}
@@ -30,7 +30,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
         Investment Request Details
       </DialogTitle>
       <DialogContent>
-        {investmentRequest ? (
+        {investmentRequestData ? (
           <Box
             sx={{
               display: 'flex',
@@ -50,7 +50,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
               }}
             >
               <Typography variant="h6" fontWeight="bold">
-                Request ID: {investmentRequest.id}
+                Request ID: {investmentRequestData.id}
               </Typography>
             </Box>
 
@@ -67,7 +67,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                 >
                   <BusinessIcon sx={{ color: colors.blueAccent[300], marginBottom: 1 }} />
                   <Typography variant="body1">
-                    <strong>Business Name:</strong> {investmentRequest.business_name}
+                    <strong>Business Name:</strong> {investmentRequestData.business_name}
                   </Typography>
                 </Box>
               </Grid>
@@ -83,7 +83,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                   }}
                 >
                   <Typography variant="body1">
-                    <strong>Description:</strong> {investmentRequest.description}
+                    <strong>Description:</strong> {investmentRequestData.description}
                   </Typography>
                 </Box>
               </Grid>
@@ -100,7 +100,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                 >
                   <MonetizationOnIcon sx={{ color: colors.blueAccent[300], marginBottom: 1 }} />
                   <Typography variant="body1">
-                    <strong>Requested Amount:</strong> ${investmentRequest.requested_amount}
+                    <strong>Requested Amount:</strong> ${investmentRequestData.requested_amount}
                   </Typography>
                 </Box>
               </Grid>
@@ -117,7 +117,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                 >
                   <TimerIcon sx={{ color: colors.blueAccent[300], marginBottom: 1 }} />
                   <Typography variant="body1">
-                    <strong>Proposed Share (%):</strong> {investmentRequest.proposed_share}
+                    <strong>Proposed Share (%):</strong> {investmentRequestData.proposed_share}
                   </Typography>
                 </Box>
               </Grid>
@@ -133,7 +133,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                   }}
                 >
                   <Typography variant="body1">
-                    <strong>Status:</strong> {investmentRequest.status}
+                    <strong>Status:</strong> {investmentRequestData.status}
                   </Typography>
                 </Box>
               </Grid>
@@ -149,7 +149,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                   }}
                 >
                   <Typography variant="body1">
-                    <strong>Request Date:</strong> {new Date(investmentRequest.createdAt).toLocaleDateString()}
+                    <strong>Request Date:</strong> {new Date(investmentRequestData.createdAt).toLocaleDateString()}
                   </Typography>
                 </Box>
               </Grid>
@@ -166,7 +166,7 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequest, colors
                 >
                   <AccountCircleIcon sx={{ color: colors.blueAccent[300], marginBottom: 1 }} />
                   <Typography variant="body1">
-                    <strong>Investor:</strong> {investmentRequest.user.name} (Email: {investmentRequest.user.email})
+                    <strong>Request By:</strong> {investmentRequestData.user.name} (Email: {investmentRequestData.user.email})
                   </Typography>
                 </Box>
               </Grid>
