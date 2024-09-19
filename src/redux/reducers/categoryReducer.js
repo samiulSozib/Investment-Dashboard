@@ -7,7 +7,10 @@ import {
     CATEGORY_CREATE_FAIL,
     CATEGORY_DELETE_REQUEST,
     CATEGORY_DELETE_SUCCESS,
-    CATEGORY_DELETE_FAIL 
+    CATEGORY_DELETE_FAIL,
+    CATEGORY_UPDATE_REQUEST,
+    CATEGORY_UPDATE_SUCCESS,
+    CATEGORY_UPDATE_FAIL,
 } from '../constants/categoryConstants'
 
 const initialState={
@@ -37,6 +40,18 @@ const categoryReducer=(state=initialState,action)=>{
             };
         case CATEGORY_DELETE_FAIL:
             return { ...state, loading: false, error: action.payload };
+        case CATEGORY_UPDATE_REQUEST:
+            return { ...state, loading: true };
+        case CATEGORY_UPDATE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                categories: state.categories.map((category) =>
+                    category.id === action.payload.id ? action.payload : category
+                ),
+            };
+        case CATEGORY_UPDATE_FAIL:
+             return { ...state, loading: false, error: action.payload };
         default:
             return state
     }

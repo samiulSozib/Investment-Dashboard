@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 
-const AddBusinessDialog = ({ open, handleClose, handleFormSubmit, formData, handleChange, categories, colors }) => {
+const AddBusinessDialog = ({ open, handleClose, handleFormSubmit, formData, handleChange, categories, colors,isEditing }) => {
   return (
     <Dialog 
       open={open} 
@@ -14,7 +14,7 @@ const AddBusinessDialog = ({ open, handleClose, handleFormSubmit, formData, hand
       }}
     >
       <DialogTitle sx={{ backgroundColor: colors.blueAccent[700], color: colors.grey[100] }}>
-        Create New Business
+      {isEditing ? 'Edit Business' : 'Add Business'}
       </DialogTitle>
 
       <DialogContent sx={{ backgroundColor: colors.primary[400], color: colors.grey[100] }}>
@@ -227,7 +227,7 @@ const AddBusinessDialog = ({ open, handleClose, handleFormSubmit, formData, hand
             }
           }}
         >
-          Create
+           {isEditing ? 'Save Changes' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>

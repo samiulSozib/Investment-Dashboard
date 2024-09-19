@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Box, IconButton, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
 import {useDispatch,useSelector} from 'react-redux'
-import {businessList,deleteBusiness,insertBusiness} from '../../redux/actions/businessAction'
+import {businessList,deleteBusiness,insertBusiness,editBusiness} from '../../redux/actions/businessAction'
 import {categoryList} from '../../redux/actions/categoryActions'
 
 import AddBusinessDialog from "./addBusinessDialog";
@@ -19,11 +21,23 @@ const Businesses = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const extractId = (rowId) => {
+    const parts = rowId.split("-");
+    return parts.length > 1 ? parseInt(parts[1], 10) : null;
+  };
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false); 
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBusinessId, setEditBusinessId] = useState(null);
+
+
+  const [expandedRowId, setExpandedRowId] = useState(null);
+  const [firstParentId, setFirstParentId] = useState(null);
 
 
   
@@ -49,17 +63,33 @@ const Businesses = () => {
   };
 
   const handleEdit = () => {
-    console.log(`Edit clicked for row with id: ${selectedRowId}`);
+    const id=extractId(selectedRowId)
+    const business = businesses.find((b) => b.id === id);
+    setFormData({
+      name: business.name,
+      min_investment: business.min_investment,
+      max_investment: business.max_investment,
+      min_investment_period: business.min_investment_period,
+      max_investment_period: business.max_investment_period,
+      profit_share_ratio: business.profit_share_ratio,
+      loss_share_ratio: business.loss_share_ratio,
+      category_id: business.category ? business.category.id : '',
+    });
+    setIsEditing(true); 
+    setEditBusinessId(id)
+    handleOpen();
     handleMenuClose();
   };
 
   const handleDelete = () => {
-    dispatch(deleteBusiness(selectedRowId))
+    const id=extractId(selectedRowId)
+    dispatch(deleteBusiness(id))
     handleMenuClose();
   };
 
   const handleDetails = () => {
-    const business = businesses.find((b) => b.id === selectedRowId);
+    const id=extractId(selectedRowId)
+    const business = businesses.find((b) => b.id === id);
     setSelectedBusiness(business);
     setOpenDetailsDialog(true); // Open dialog
     handleMenuClose();
@@ -97,50 +127,97 @@ const Businesses = () => {
   };
 
   const handleFormSubmit = () => {
-    console.log('Form Data:', formData);
-    dispatch(insertBusiness(formData))
+    if (isEditing) {
+      dispatch(editBusiness(editBusinessId, formData)); 
+    } else {
+      dispatch(insertBusiness(formData));
+    }
+    setFormData({
+      name: '',
+      min_investment: '',
+      max_investment: '',
+      min_investment_period: '',
+      max_investment_period: '',
+      profit_share_ratio: '',
+      loss_share_ratio: '',
+      category_id: '',
+    });
+    setIsEditing(false);
+    setEditBusinessId(null); 
     handleClose();
   };
 
 
-  const columns = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "min_investment",
-      headerName: "Min Invest",
-      type: "number",
-      headerAlign: "left",
-      align: "left",
-    },
-    {
-      field: "min_investment_period",
-      headerName: "Min Investment Period",
-      flex: 1,
-    },
-    {
-      field: "max_investment_period",
-      headerName: "Max Investment Period",
-      flex: 1,
-    },
-    {
-      field: "profit_share_ratio",
-      headerName: "Return",
-      flex: 1,
-    },
-    {
-      field: "category.name", 
-      headerName: "Category", 
-      flex: 1,
-      renderCell:(params)=>{
-        return params.row.category ? params.row.category.name : "N/A";
+  const toggleExpand = (id) => {
+    setExpandedRowId((prevExpandedRowId) =>
+      prevExpandedRowId === id ? null : id
+    );
+  };
+
+  
+  const transformData = (businesses) => {
+    let rows = [];
+  
+    businesses.forEach((business) => {
+      const parentRow = {
+        id: `business-${business.id}`,
+        business_name: business.name,
+        min_investment: business.min_investment,
+        max_investment: business.max_investment,
+        min_investment_period: business.min_investment_period,
+        profit_share_ratio: business.profit_share_ratio,
+        loss_share_ratio: business.loss_share_ratio,
+        status: business.status,
+        isParent: true,
+      };
+      rows.push(parentRow);
+  
+      if (expandedRowId === `business-${business.id}`) {
+        business.investments.forEach((investment) => {
+          rows.push({
+            id: `investment-${investment.id}`,
+            investment_id: investment.id,
+            amount: investment.amount,
+            investment_date: investment.investment_date,
+            investment_period: investment.investment_period,
+            expected_return: investment.expected_return,
+            termination_date: investment.termination_date,
+            status: investment.status,
+            parentId: `business-${business.id}`,
+            isChild: true,
+          });
+        });
       }
+    });
+  
+    return rows;
+  };
+  
+
+
+  const parentColumns = [
+    {
+      field: "expand",
+      headerName: "",
+      flex: 0.2,
+      renderCell: (params) => {
+        if (params.row.isParent) {
+          return (
+            <IconButton onClick={() => toggleExpand(params.row.id)}>
+              {expandedRowId === params.row.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          );
+        }
+        return null;
+      },
     },
+    { field: "business_name", headerName: "Business Name", flex: 1 },
+    { field: "min_investment", headerName: "Min Investment", flex: 1, type: "number" },
+    { field: "max_investment", headerName: "Max Investment", flex: 1, type: "number" },
+    { field: "min_investment_period", headerName: "Min Investment Period", flex: 1 },
+    { field: "profit_share_ratio", headerName: "Profit Share (%)", flex: 1, type: "number" },
+    { field: "loss_share_ratio", headerName: "Loss Share (%)", flex: 1, type: "number" },
+    { field: "status", headerName: "Status", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -163,8 +240,27 @@ const Businesses = () => {
       ),
     },
   ];
+
+  const childColumns = [
+    { field: "investment_id", headerName: "Investment ID", flex: 0.5 },
+    { field: "amount", headerName: "Amount", flex: 1, type: "number" },
+    { field: "investment_date", headerName: "Investment Date", flex: 1, type: "date" },
+    { field: "investment_period", headerName: "Investment Period", flex: 1 },
+    { field: "expected_return", headerName: "Expected Return", flex: 1 },
+    { field: "termination_date", headerName: "Termination Date", flex: 1, type: "date" },
+    { field: "status", headerName: "Status", flex: 1 },
+  ];
   
-  
+  const rows = transformData(businesses);
+
+  useEffect(() => {
+    if (rows.length > 0) {
+      const firstParent = rows.find(row => row.isParent);
+      if (firstParent) {
+        setFirstParentId(firstParent.id);
+      }
+    }
+  }, [rows]);
 
 
   return (
@@ -201,12 +297,8 @@ const Businesses = () => {
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
           },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
+            display: "none", // Hide column headers by default for parent rows
           },
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],
@@ -223,14 +315,52 @@ const Businesses = () => {
           },
         }}
       >
-        <DataGrid
-          rows={businesses}
-          columns={columns}
-          components={{ Toolbar: GridToolbar }}
-        />
+        {rows.map((row, index) => {
+          if (row.isParent) {
+            return (
+              <div key={row.id}>
+                <DataGrid
+                  rows={[row]}
+                  columns={parentColumns}
+                  pageSize={5}
+                  autoHeight
+                  hideFooter
+                 
+                  sx={{
+                    "& .MuiDataGrid-columnHeaders": {
+                      display: row.id === firstParentId ? "flex" : "none", // Show headers only for the first parent row
+                    },
+                    "& .MuiDataGrid-cell": {
+                      borderBottom: "0.5px solid", // Add border bottom for each cell
+                      borderColor: colors.grey[700],
+                    },
+                    "& .MuiDataGrid-root": {
+                      borderBottom: "0.5px solid", // Border bottom for the entire parent grid
+                      borderColor: colors.grey[700],
+                    },
+                  }}
+                />
+                {expandedRowId === row.id && (
+                  <DataGrid
+                    rows={rows.filter(childRow => childRow.parentId === row.id)}
+                    columns={childColumns}
+                    pageSize={5}
+                    autoHeight
+                    sx={{
+                      "& .MuiDataGrid-columnHeaders": {
+                        display: "flex", // Ensure headers are displayed for child grid
+                      },
+                    }}
+                  />
+                )}
+              </div>
+            );
+          }
+          return null;
+        })}
       </Box>
 
-      <AddBusinessDialog open={open} handleClose={handleClose} categories={categories} handleFormSubmit={handleFormSubmit} formData={formData} colors={colors} handleChange={handleChange}/>
+      <AddBusinessDialog open={open} handleClose={handleClose} categories={categories} handleFormSubmit={handleFormSubmit} formData={formData} colors={colors} handleChange={handleChange} isEditing={isEditing}/>
       <BusinessDetailsDialog open={openDetailsDialog} handleClose={handleDetailsClose} business={selectedBusiness} colors={colors}/>
       <ToastContainer/>
     </Box>

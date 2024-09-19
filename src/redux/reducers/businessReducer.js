@@ -7,7 +7,10 @@ import {
     INSERT_BUSINESS_FAIL,
     DELETE_BUSINESS_REQUEST,
     DELETE_BUSINESS_SUCCESS,
-    DELETE_BUSINESS_FAIL
+    DELETE_BUSINESS_FAIL,
+    EDIT_BUSINESS_REQUEST,
+    EDIT_BUSINESS_SUCCESS,
+    EDIT_BUSINESS_FAIL
   } from '../constants/businessConstants';
   
   const initialState = {
@@ -43,6 +46,19 @@ import {
         return { ...state, loading: false, businesses: state.businesses.filter(business => business.id !== action.payload) };
         
       case DELETE_BUSINESS_FAIL:
+        return { ...state, loading: false, error: action.payload };
+
+      case EDIT_BUSINESS_REQUEST:
+        return { ...state, loading: true };
+      case EDIT_BUSINESS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          businesses: state.businesses.map(business => 
+             business.id === action.payload.id ? action.payload : business
+          ),
+        };
+      case EDIT_BUSINESS_FAIL:
         return { ...state, loading: false, error: action.payload };
         
       default:

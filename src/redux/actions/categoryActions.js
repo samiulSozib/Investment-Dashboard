@@ -8,7 +8,10 @@ import {
     CATEGORY_CREATE_FAIL,
     CATEGORY_DELETE_REQUEST,
     CATEGORY_DELETE_SUCCESS,
-    CATEGORY_DELETE_FAIL 
+    CATEGORY_DELETE_FAIL ,
+    CATEGORY_UPDATE_REQUEST,
+    CATEGORY_UPDATE_SUCCESS,
+    CATEGORY_UPDATE_FAIL,
 } from '../constants/categoryConstants'
 import { toast } from 'react-toastify';
 
@@ -64,3 +67,20 @@ export const deleteCategory = (categoryId) => {
       }
     };
   };
+
+
+  export const editCategory = (categoryId, categoryInfo) => {
+    return async (dispatch) => {
+        dispatch({ type: CATEGORY_UPDATE_REQUEST });
+        try {
+            const response = await axios.put(`${base_url}/business-categories/${categoryId}`, categoryInfo);
+            const { data } = response.data;
+            dispatch({ type: CATEGORY_UPDATE_SUCCESS, payload: data });
+            toast.success("Category updated successfully");
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            dispatch({ type: CATEGORY_UPDATE_FAIL, payload: errorMessage });
+            toast.error(`Error: ${errorMessage}`);
+        }
+    };
+};

@@ -4,7 +4,13 @@ import {NEWS_BLOGS_LIST_REQUEST,
     NEWS_BLOGS_LIST_FAIL,
     NEWS_BLOGS_DELETE_REQUEST,
     NEWS_BLOGS_DELETE_SUCCESS,
-    NEWS_BLOGS_DELETE_FAIL
+    NEWS_BLOGS_DELETE_FAIL,
+    NEWS_BLOGS_ADD_REQUEST,
+    NEWS_BLOGS_ADD_SUCCESS,
+    NEWS_BLOGS_ADD_FAIL,
+    NEWS_BLOGS_EDIT_REQUEST,
+    NEWS_BLOGS_EDIT_SUCCESS,
+    NEWS_BLOGS_EDIT_FAIL
     } from '../constants/newsBlogConstants'
 import { toast } from "react-toastify";
 
@@ -44,3 +50,38 @@ export const deleteNewsBlog = (blogId) => {
       }
     };
   };
+
+
+  // Add News Blog
+export const addNewsBlog = (formData) => {
+  return async (dispatch) => {
+    dispatch({ type: NEWS_BLOGS_ADD_REQUEST });
+    try {
+      const response = await axios.post(`${base_url}/news-blogs`, formData);
+      const { data } = response.data;
+      dispatch({ type: NEWS_BLOGS_ADD_SUCCESS, payload: data });
+      toast.success("News Blog Added Successfully");
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      dispatch({ type: NEWS_BLOGS_ADD_FAIL, payload: errorMessage });
+      toast.error(`Error: ${errorMessage}`);
+    }
+  };
+};
+
+// Edit News Blog
+export const editNewsBlog = (blogId, formData) => {
+  return async (dispatch) => {
+    dispatch({ type: NEWS_BLOGS_EDIT_REQUEST });
+    try {
+      const response = await axios.put(`${base_url}/news-blogs/${blogId}`, formData);
+      const { data } = response.data;
+      dispatch({ type: NEWS_BLOGS_EDIT_SUCCESS, payload: data });
+      toast.success("News Blog Updated Successfully");
+    } catch (error) {
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      dispatch({ type: NEWS_BLOGS_EDIT_FAIL, payload: errorMessage });
+      toast.error(`Error: ${errorMessage}`);
+    }
+  };
+};

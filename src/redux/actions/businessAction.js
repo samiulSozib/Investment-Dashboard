@@ -7,14 +7,17 @@ import {BUSINESS_LIST_REQUEST,
     INSERT_BUSINESS_FAIL,
     DELETE_BUSINESS_REQUEST,
     DELETE_BUSINESS_SUCCESS,
-    DELETE_BUSINESS_FAIL
+    DELETE_BUSINESS_FAIL,
+    EDIT_BUSINESS_REQUEST,
+    EDIT_BUSINESS_SUCCESS,
+    EDIT_BUSINESS_FAIL
 } from '../constants/businessConstants'
 import { toast } from 'react-toastify';
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
-//const base_url='http://localhost:1000'
-const base_url='https://investment-api.nodescript-it.com'
+const base_url='http://localhost:1000'
+//const base_url='https://investment-api.nodescript-it.com'
 
 
 
@@ -61,6 +64,22 @@ export const insertBusiness = (businessData) => {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({ type: DELETE_BUSINESS_FAIL, payload: errorMessage });
         toast.error(`Error : ${errorMessage}`)
+      }
+    };
+  };
+
+  export const editBusiness = (businessId, updatedData) => {
+    return async (dispatch) => {
+      dispatch({ type: EDIT_BUSINESS_REQUEST });
+      try {
+        const response = await axios.put(`${base_url}/business/${businessId}`, updatedData);
+        const { data } = response.data;
+        dispatch({ type: EDIT_BUSINESS_SUCCESS, payload: data });
+        toast.success("Business Updated Successfully");
+      } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({ type: EDIT_BUSINESS_FAIL, payload: errorMessage });
+        toast.error(`Error : ${errorMessage}`);
       }
     };
   };
