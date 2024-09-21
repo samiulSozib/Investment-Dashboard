@@ -113,7 +113,9 @@ const Businesses = () => {
     profit_share_ratio: '',
     loss_share_ratio: '',
     category_id: '',
+    business_images:[]
   });
+  const [business_images, setbusiness_images] = useState([]);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

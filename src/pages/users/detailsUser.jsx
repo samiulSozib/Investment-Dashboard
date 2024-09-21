@@ -3,9 +3,9 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typogra
 import { useTheme } from '@mui/material/styles';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import RequestQuoteIcon from '@mui/icons-material/RequestQuote'; // Icon for investment requests
-import OfferIcon from '@mui/icons-material/LocalOffer'; // Icon for investment offers
-import AnnouncementIcon from '@mui/icons-material/Announcement'; // Icon for news blogs
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import OfferIcon from '@mui/icons-material/LocalOffer';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
 
 const UserDetails = ({ open, handleClose, user, colors }) => {
   const investments = user?.investments || [];
@@ -48,20 +48,39 @@ const UserDetails = ({ open, handleClose, user, colors }) => {
           >
             {/* User Information */}
             <Box
-              sx={{
-                display: 'flex',
-                gap: 2,
-                backgroundColor: colors.primary[500],
-                padding: 2,
-                borderRadius: 1,
-                border: `1px solid ${colors.blueAccent[700]}`,
-              }}
-            >
+            sx={{
+              display: 'flex',
+              gap: 2,
+              backgroundColor: colors.primary[500],
+              padding: 2,
+              borderRadius: 1,
+              border: `1px solid ${colors.blueAccent[700]}`,
+            }}
+          >
+            {user.profile_image ? (
+              <img
+                src={user.profile_image.image_url}
+                alt="Profile"
+                style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover' }}
+              />
+            ) : (
               <AccountCircleIcon sx={{ color: colors.blueAccent[300], fontSize: 28 }} />
+            )}
+            
+            {/* Name, Email, and Phone */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <Typography variant="h6" fontWeight="bold">
                 {user.name}
               </Typography>
+              <Typography variant="body1" sx={{ mt: 1 }}>
+                {user.email}
+              </Typography>
+              <Typography variant="body1">
+                {user.phone_number}
+              </Typography>
             </Box>
+          </Box>
+
 
             {/* User Details */}
             <Grid container spacing={2}>
@@ -117,7 +136,7 @@ const UserDetails = ({ open, handleClose, user, colors }) => {
                   }}
                 >
                   <Typography variant="body1">
-                    <strong>Verified:</strong> {user.is_varified ? 'Yes' : 'No'}
+                    <strong>Verified:</strong> {user.is_verified ? 'Yes' : 'No'}
                   </Typography>
                 </Box>
               </Grid>

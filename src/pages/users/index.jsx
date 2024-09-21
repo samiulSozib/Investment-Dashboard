@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { tokens } from "../../theme";
+import { useDispatch, useSelector } from 'react-redux';
+import { userList, deleteUser } from '../../redux/actions/userActions';
+import UserDetails from "./detailsUser";
+import { ToastContainer } from "react-toastify";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
-import {useDispatch,useSelector} from 'react-redux'
-import {userList,deleteUser} from '../../redux/actions/userActions'
-import { ToastContainer } from "react-toastify";
-import UserDetails from "./detailsUsre";
+import { tokens } from "../../theme";
 
 const Users = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
+  
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
-
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
- 
+  const dispatch = useDispatch();
+  const { users } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(userList());
+  }, [dispatch]);
+
+
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -39,7 +44,7 @@ const Users = () => {
   };
 
   const handleDelete = () => {
-    dispatch(deleteUser(selectedRowId))
+    dispatch(deleteUser(selectedRowId));
     handleMenuClose();
   };
 
@@ -49,45 +54,19 @@ const Users = () => {
     setOpenDetailsDialog(true);
     handleMenuClose();
   };
-  
-  // Close dialog
+
   const handleCloseDetailsDialog = () => {
     setOpenDetailsDialog(false);
     setSelectedUser(null);
   };
 
-  const navigate = useNavigate();
-
-  
-
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-    
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
-        field: "phone_number",
-        headerName: "Phone",
-        flex: 1,
-      },
-      {
-        field: "role",
-        headerName: "Role",
-        flex: 1,
-      },
-      {
-        field: "is_varified",
-        headerName: "Verified",
-        flex: 1,
-      },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "phone_number", headerName: "Phone", flex: 1 },
+    { field: "role", headerName: "Role", flex: 1 },
+    { field: "is_verified", headerName: "Verified", flex: 1 },
     {
       field: "actions",
       headerName: "Actions",
@@ -110,54 +89,24 @@ const Users = () => {
       ),
     },
   ];
-  
-  
-
-  const dispatch=useDispatch()
-  const {loading,error,users} =useSelector((state)=>state.user)
-
-  useEffect(()=>{
-    dispatch(userList())
-  },[dispatch])
-
- 
 
   return (
     <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="Users" subtitle="User List" />
-
-      </Box>
-
+      <Header title="Users" subtitle="User List" />
       <Box
         m="40px 0 0 0"
         height="75vh"
         sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
+          "& .MuiDataGrid-root": { border: "none" },
+          "& .MuiDataGrid-cell": { borderBottom: "none" },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
             borderBottom: "none",
           },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
+          "& .MuiDataGrid-virtualScroller": { backgroundColor: colors.primary[400] },
           "& .MuiDataGrid-footerContainer": {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
           },
         }}
       >
@@ -168,8 +117,7 @@ const Users = () => {
         />
       </Box>
       <UserDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} user={selectedUser} colors={colors} />
-        <ToastContainer/>
-
+      <ToastContainer />
     </Box>
   );
 };

@@ -4,6 +4,8 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import TimerIcon from '@mui/icons-material/Timer';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import BusinessIcon from '@mui/icons-material/Business';
+import 'react-responsive-carousel/lib/styles/carousel.min.css'; 
+import { Carousel } from 'react-responsive-carousel';
 
 const InvestmentRequestDetails = ({ open, handleClose, investmentRequestData, colors }) => {
   return (
@@ -29,6 +31,33 @@ const InvestmentRequestDetails = ({ open, handleClose, investmentRequestData, co
       >
         Investment Request Details
       </DialogTitle>
+
+
+              {/* Image Carousel */}
+  
+      {investmentRequestData && investmentRequestData.investment_request_images && investmentRequestData.investment_request_images.length > 0 ? (
+        <Carousel
+          showThumbs={false}
+          showStatus={false}
+          infiniteLoop
+          useKeyboardArrows
+          autoPlay
+          dynamicHeight={false}
+          sx={{ marginBottom: 3 }}
+        >
+          {investmentRequestData.investment_request_images.map((image, index) => (
+            <div key={index}>
+              <img src={image.image_url} alt={`business-image-${index}`} />
+            </div>
+          ))}
+        </Carousel>
+      ) : (
+        <Typography variant="body1" color="text.secondary">
+         
+        </Typography>
+      )}
+
+
       <DialogContent>
         {investmentRequestData ? (
           <Box
