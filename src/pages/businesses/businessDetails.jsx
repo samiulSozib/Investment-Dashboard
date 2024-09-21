@@ -33,7 +33,14 @@ const BusinessDetailsDialog = ({ open, handleClose, business, colors }) => {
       </DialogTitle>
 
 
-      {/* Image Carousel */}
+   
+
+
+
+      <DialogContent>
+
+
+           {/* Image Carousel */}
   
       {business && business.business_images && business.business_images.length > 0 ? (
         <Carousel
@@ -57,9 +64,6 @@ const BusinessDetailsDialog = ({ open, handleClose, business, colors }) => {
         </Typography>
       )}
 
-
-
-      <DialogContent>
         {business ? (
           <Box
             sx={{
