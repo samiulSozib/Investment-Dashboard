@@ -25,7 +25,7 @@ const NewsBlogs = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedNewsBlog, setSelectedNewsBlog] = useState(null);
   const [editNewsId, setEditNewsId] = useState(null);
-  const [existingImages, setExistingImages] = useState([]); // New state for existing images
+  const [news_blogs_images, setNewsBlogsImages] = useState([]); // Existing images
 
   const dispatch = useDispatch();
   const { newsBlogs } = useSelector((state) => state.newsBlogs);
@@ -68,7 +68,9 @@ const NewsBlogs = () => {
         author_id: newsBlog.author_id,
         images: [] // New images will be added here
       });
-      setExistingImages(newsBlog.images || []); // Assuming newsBlog.images is an array of image URLs
+      setNewsBlogsImages(newsBlog.news_blogs_images); // Existing images
+      // console.log('Editing NewsBlog:', newsBlog);
+      // console.log('Existing Images:', newsBlog.news_blogs_images);
       setOpenAddDialog(true);
     }
     handleMenuClose();
@@ -78,59 +80,58 @@ const NewsBlogs = () => {
   const handleAddNewsClick = () => {
     setIsEditing(false);
     setFormData({ title: "", content: "", images: [] });
-    setExistingImages([]); // Reset existing images
+    setNewsBlogsImages([]); // Reset existing images
     setOpenAddDialog(true);
   };
 
   const handleCloseAddDialog = () => {
     setOpenAddDialog(false);
     setFormData({ title: "", content: "", images: [] });
-    setExistingImages([]); // Reset existing images
+    setNewsBlogsImages([]); // Reset existing images
   };
 
   const handleAddNewsSubmit = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const updatedFormData = { 
       ...formData, 
-      author_id: user?.id || null,
-      existingImages, // Include existing images
+      author_id: user?.id || null,  // Add the author ID
     };
   
-    // Create FormData
+    // Create a FormData object
     const data = new FormData();
+  
+    // Append regular fields
     data.append('title', updatedFormData.title);
     data.append('content', updatedFormData.content);
     data.append('author_id', updatedFormData.author_id);
   
-    // Append existing images as URLs or identifiers
-    updatedFormData.existingImages.forEach((imageUrl) => {
-      data.append('existingImages', imageUrl); // Adjust based on backend requirements
-    });
+    // Append existing images as a JSON string (existing URLs or references)
+    console.log(Array.isArray(news_blogs_images))
+    if (isEditing) {
+      data.append('existing_images', JSON.stringify(news_blogs_images.map(img => img.image_url)));
+    }
   
-    // Append new images
+    // Append new images as files
     if (updatedFormData.images && updatedFormData.images.length > 0) {
       Array.from(updatedFormData.images).forEach((image) => {
         data.append('news_blogs_images', image);
       });
     }
   
-    // Log the FormData content
+    // Debugging FormData contents
     for (let pair of data.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
+      console.log(`${pair[0]}:`, pair[1]);
     }
   
+    // Dispatch the action (Redux or API call)
     if (isEditing) {
-      dispatch(editNewsBlog(editNewsId, data));
+      dispatch(editNewsBlog(editNewsId, data));  // Update existing blog
     } else {
-      console.log(data);
-      dispatch(addNewsBlog(data));
+      dispatch(addNewsBlog(data));  // Create new blog
     }
-  
-    setIsEditing(false);
-    setEditNewsId(null);
-    setExistingImages([]);
     handleCloseAddDialog();
   };
+  
   
   // Handle image selection
   const handleImageChange = (e) => {
@@ -151,9 +152,9 @@ const NewsBlogs = () => {
 
   // Handle removal of existing images
   const handleRemoveExistingImage = (index) => {
-    const newExistingImages = [...existingImages];
-    newExistingImages.splice(index, 1);
-    setExistingImages(newExistingImages);
+    const newNewsBlogsImages = [...news_blogs_images];
+    newNewsBlogsImages.splice(index, 1);
+    setNewsBlogsImages(newNewsBlogsImages);
   };
 
   // Table columns
@@ -236,16 +237,18 @@ const NewsBlogs = () => {
         handleImageChange={handleImageChange}
         handleRemoveImage={handleRemoveImage}
         isEditing={isEditing}
-        existingImages={existingImages}
+        news_blogs_images={news_blogs_images}
         handleRemoveExistingImage={handleRemoveExistingImage}
       />
 
+      {/* News Blog Details Dialog */}
       <NewsBlogDetails
         open={openDetailsDialog}
         handleClose={() => setOpenDetailsDialog(false)}
         newsBlog={selectedNewsBlog}
         colors={colors}
       />
+
       <ToastContainer />
     </Box>
   );

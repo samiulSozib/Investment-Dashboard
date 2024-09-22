@@ -1,4 +1,5 @@
-import React from 'react';
+// AddNewsDialog.js
+import React, { useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,6 +9,7 @@ import {
   TextField,
   Box,
   Typography,
+  Chip
 } from '@mui/material';
 
 const AddNewsDialog = ({
@@ -23,6 +25,16 @@ const AddNewsDialog = ({
   news_blogs_images,
   handleRemoveExistingImage,
 }) => {
+  
+  // Cleanup object URLs to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (formData.images) {
+        formData.images.forEach((file) => URL.revokeObjectURL(file.preview));
+      }
+    };
+  }, [formData.images]);
+
   return (
     <Dialog
       open={open}
@@ -49,6 +61,15 @@ const AddNewsDialog = ({
           onChange={handleChange}
           fullWidth
           margin="dense"
+          variant="outlined"
+          sx={{
+            input: { color: colors.grey[100] },
+            label: { color: colors.grey[100] },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: colors.grey[100] },
+              '&:hover fieldset': { borderColor: colors.blueAccent[700] }
+            }
+          }}
         />
 
         {/* Content Field */}
@@ -61,6 +82,15 @@ const AddNewsDialog = ({
           margin="dense"
           multiline
           rows={4}
+          variant="outlined"
+          sx={{
+            input: { color: colors.grey[100] },
+            label: { color: colors.grey[100] },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: colors.grey[100] },
+              '&:hover fieldset': { borderColor: colors.blueAccent[700] }
+            }
+          }}
         />
 
         {/* Image Upload Field */}
@@ -68,27 +98,25 @@ const AddNewsDialog = ({
           <Typography variant="subtitle1" gutterBottom>
             Upload Images
           </Typography>
-          <input
-            accept="image/*"
-            id="news-blog-images"
-            type="file"
-            multiple
-            onChange={handleImageChange}
-            style={{ display: 'none' }}
-          />
-          <label htmlFor="news-blog-images">
-            <Button
-              variant="contained"
-              component="span"
-              sx={{
-                backgroundColor: colors.blueAccent[700],
-                color: colors.grey[100],
-                '&:hover': { backgroundColor: colors.blueAccent[800] },
-              }}
-            >
-              Choose Images
-            </Button>
-          </label>
+          <Button
+            variant="contained"
+            component="label"
+            sx={{
+              backgroundColor: colors.blueAccent[700],
+              color: colors.grey[100],
+              '&:hover': { backgroundColor: colors.blueAccent[800] },
+              mb: 2
+            }}
+          >
+            Choose Images
+            <input
+              type="file"
+              hidden
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </Button>
 
           {/* Display Existing Images (if editing) */}
           {isEditing && news_blogs_images && news_blogs_images.length > 0 && (
@@ -97,29 +125,20 @@ const AddNewsDialog = ({
                 Existing Images
               </Typography>
               <Box display="flex" flexWrap="wrap" gap={2}>
-                {news_blogs_images.map((imageUrl, index) => (
+                {news_blogs_images.map((image_obj, index) => (
                   <Box key={index} position="relative">
                     <img
-                      src={imageUrl}
+                      src={image_obj.image_url} // Correctly accessing the image URL
                       alt={`existing-${index}`}
                       style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: '8px' }}
                     />
-                    <Box
-                      position="absolute"
-                      top={0}
-                      right={0}
-                      bgcolor="rgba(0,0,0,0.5)"
-                      borderRadius="50%"
-                      width={24}
-                      height={24}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      cursor="pointer"
+                    <Chip
+                      label="Remove"
+                      color="error"
+                      size="small"
                       onClick={() => handleRemoveExistingImage(index)}
-                    >
-                      <Typography variant="body2" color="#fff">×</Typography>
-                    </Box>
+                      sx={{ position: 'absolute', top: 5, right: 5 }}
+                    />
                   </Box>
                 ))}
               </Box>
@@ -140,22 +159,13 @@ const AddNewsDialog = ({
                       alt={`preview-${index}`}
                       style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: '8px' }}
                     />
-                    <Box
-                      position="absolute"
-                      top={0}
-                      right={0}
-                      bgcolor="rgba(0,0,0,0.5)"
-                      borderRadius="50%"
-                      width={24}
-                      height={24}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      cursor="pointer"
+                    <Chip
+                      label="Remove"
+                      color="error"
+                      size="small"
                       onClick={() => handleRemoveImage(index)}
-                    >
-                      <Typography variant="body2" color="#fff">×</Typography>
-                    </Box>
+                      sx={{ position: 'absolute', top: 5, right: 5 }}
+                    />
                   </Box>
                 ))
               ) : (

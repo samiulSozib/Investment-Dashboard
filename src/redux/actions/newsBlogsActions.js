@@ -16,8 +16,8 @@ import { toast } from "react-toastify";
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
-//const base_url='http://localhost:1000'
-const base_url='https://investment-api.nodescript-it.com'
+const base_url='http://localhost:1000'
+//const base_url='https://investment-api.nodescript-it.com'
 
 
 
@@ -57,8 +57,16 @@ export const addNewsBlog = (formData) => {
   return async (dispatch) => {
     dispatch({ type: NEWS_BLOGS_ADD_REQUEST });
     try {
-      const response = await axios.post(`${base_url}/news-blogs`, formData);
+      for (let pair of formData.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
+      }
+      const response = await axios.post(`${base_url}/news-blogs`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       const { data } = response.data;
+      console.log(data)
       dispatch({ type: NEWS_BLOGS_ADD_SUCCESS, payload: data });
       toast.success("News Blog Added Successfully");
     } catch (error) {
@@ -74,12 +82,22 @@ export const editNewsBlog = (blogId, formData) => {
   return async (dispatch) => {
     dispatch({ type: NEWS_BLOGS_EDIT_REQUEST });
     try {
-      const response = await axios.put(`${base_url}/news-blogs/${blogId}`, formData);
+      for (let pair of formData.entries()) {
+          console.log(`${pair[0]}: ${pair[1]}`);
+        }
+        const response = await axios.put(`${base_url}/news-blogs/${blogId}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       const { data } = response.data;
+      console.log(data)
       dispatch({ type: NEWS_BLOGS_EDIT_SUCCESS, payload: data });
       toast.success("News Blog Updated Successfully");
     } catch (error) {
+     
       const errorMessage = error.response ? error.response.data.message : error.message;
+      console.log(errorMessage)
       dispatch({ type: NEWS_BLOGS_EDIT_FAIL, payload: errorMessage });
       toast.error(`Error: ${errorMessage}`);
     }

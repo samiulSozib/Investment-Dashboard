@@ -40,7 +40,12 @@ export const insertBusiness = (businessData) => {
     return async (dispatch) => {
       dispatch({ type: INSERT_BUSINESS_REQUEST });
       try {
-        const response = await axios.post(`${base_url}/business`, businessData);
+        const response = await axios.post(`${base_url}/business`, businessData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        
         const { data } = response.data;
         dispatch({ type: INSERT_BUSINESS_SUCCESS, payload: data });
         toast.success("Business Created Successfully")
@@ -72,7 +77,11 @@ export const insertBusiness = (businessData) => {
     return async (dispatch) => {
       dispatch({ type: EDIT_BUSINESS_REQUEST });
       try {
-        const response = await axios.put(`${base_url}/business/${businessId}`, updatedData);
+        const response = await axios.put(`${base_url}/business/${businessId}`, updatedData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         const { data } = response.data;
         dispatch({ type: EDIT_BUSINESS_SUCCESS, payload: data });
         toast.success("Business Updated Successfully");

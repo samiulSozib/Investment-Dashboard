@@ -65,19 +65,23 @@ const Businesses = () => {
   const handleEdit = () => {
     const id=extractId(selectedRowId)
     const business = businesses.find((b) => b.id === id);
-    setFormData({
-      name: business.name,
-      min_investment: business.min_investment,
-      max_investment: business.max_investment,
-      min_investment_period: business.min_investment_period,
-      max_investment_period: business.max_investment_period,
-      profit_share_ratio: business.profit_share_ratio,
-      loss_share_ratio: business.loss_share_ratio,
-      category_id: business.category ? business.category.id : '',
-    });
-    setIsEditing(true); 
-    setEditBusinessId(id)
-    handleOpen();
+    if(business){
+      setFormData({
+        name: business.name,
+        min_investment: business.min_investment,
+        max_investment: business.max_investment,
+        min_investment_period: business.min_investment_period,
+        max_investment_period: business.max_investment_period,
+        profit_share_ratio: business.profit_share_ratio,
+        loss_share_ratio: business.loss_share_ratio,
+        category_id: business.category ? business.category.id : '',
+        images:[]
+      });
+      setbusiness_images(business.business_images)
+      setIsEditing(true); 
+      setEditBusinessId(id)
+      handleOpen();
+    }
     handleMenuClose();
   };
 
@@ -113,7 +117,7 @@ const Businesses = () => {
     profit_share_ratio: '',
     loss_share_ratio: '',
     category_id: '',
-    business_images:[]
+    images:[]
   });
   const [business_images, setbusiness_images] = useState([]);
 
@@ -129,11 +133,48 @@ const Businesses = () => {
   };
 
   const handleFormSubmit = () => {
+    const updatedFormData = {
+      ...formData,
+    };
+  
+    // Create a FormData object
+    const data = new FormData();
+  
+    // Append regular fields
+    data.append('name', updatedFormData.name);
+    data.append('min_investment', updatedFormData.min_investment);
+    data.append('max_investment', updatedFormData.max_investment);
+    data.append('min_investment_period', updatedFormData.min_investment_period);
+    data.append('max_investment_period', updatedFormData.max_investment_period);
+    data.append('profit_share_ratio', updatedFormData.profit_share_ratio);
+    data.append('loss_share_ratio', updatedFormData.loss_share_ratio);
+    data.append('category_id', updatedFormData.category_id);
+  
+    // Append existing images if editing
     if (isEditing) {
-      dispatch(editBusiness(editBusinessId, formData)); 
-    } else {
-      dispatch(insertBusiness(formData));
+      data.append('existing_images', JSON.stringify(business_images.map(img => img.image_url)));
     }
+  
+    // Append new images as files
+    if (updatedFormData.images && updatedFormData.images.length > 0) {
+      Array.from(updatedFormData.images).forEach((image) => {
+        data.append('business_images', image);
+      });
+    }
+  
+    // Debugging FormData contents
+    for (let pair of data.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+  
+    // Dispatch the action (Redux or API call)
+    if (isEditing) {
+      dispatch(editBusiness(editBusinessId, data));  // Update existing business
+    } else {
+      dispatch(insertBusiness(data));  // Create new business
+    }
+  
+    // Reset form data after submission
     setFormData({
       name: '',
       min_investment: '',
@@ -144,16 +185,42 @@ const Businesses = () => {
       loss_share_ratio: '',
       category_id: '',
     });
+    setbusiness_images([]); // Reset images if needed
     setIsEditing(false);
-    setEditBusinessId(null); 
+    setEditBusinessId(null);
     handleClose();
   };
+  
+  
 
 
   const toggleExpand = (id) => {
     setExpandedRowId((prevExpandedRowId) =>
       prevExpandedRowId === id ? null : id
     );
+  };
+
+  const handleImageChange = (e) => {
+    const newImages = Array.from(e.target.files);
+    // Combine new images with existing ones
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...newImages],
+    }));
+  };
+
+  // Handle image removal (newly selected images)
+  const handleRemoveImage = (index) => {
+    const newImages = Array.from(formData.images);
+    newImages.splice(index, 1);
+    setFormData({ ...formData, images: newImages });
+  };
+
+  // Handle removal of existing images
+  const handleRemoveExistingImage = (index) => {
+    const businessImages = [...business_images];
+    businessImages.splice(index, 1);
+    setbusiness_images(businessImages);
   };
 
   
@@ -362,7 +429,21 @@ const Businesses = () => {
         })}
       </Box>
 
-      <AddBusinessDialog open={open} handleClose={handleClose} categories={categories} handleFormSubmit={handleFormSubmit} formData={formData} colors={colors} handleChange={handleChange} isEditing={isEditing}/>
+      <AddBusinessDialog 
+      open={open} 
+      handleClose={handleClose} 
+      categories={categories} 
+      handleFormSubmit={handleFormSubmit} 
+      formData={formData} 
+      colors={colors}
+      handleChange={handleChange}
+      handleImageChange={handleImageChange}
+      handleRemoveImage={handleRemoveImage}
+      handleRemoveExistingImage={handleRemoveExistingImage}
+      business_images={business_images}
+      isEditing={isEditing}/>
+
+
       <BusinessDetailsDialog open={openDetailsDialog} handleClose={handleDetailsClose} business={selectedBusiness} colors={colors}/>
       <ToastContainer/>
     </Box>
