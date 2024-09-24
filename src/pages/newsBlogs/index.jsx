@@ -126,6 +126,7 @@ const NewsBlogs = () => {
     // Dispatch the action (Redux or API call)
     if (isEditing) {
       dispatch(editNewsBlog(editNewsId, data));  // Update existing blog
+      
     } else {
       dispatch(addNewsBlog(data));  // Create new blog
     }

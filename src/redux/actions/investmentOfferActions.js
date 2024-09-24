@@ -1,5 +1,11 @@
 import axios from "axios";
-import {INVESTMENT_OFFER_LIST_REQUEST,INVESTMENT_OFFER_LIST_SUCCESS,INVESTMENT_OFFER_LIST_FAIL} from '../constants/investmentOfferconstants'
+import {INVESTMENT_OFFER_LIST_REQUEST,INVESTMENT_OFFER_LIST_SUCCESS,INVESTMENT_OFFER_LIST_FAIL,
+
+    INVESTMENT_OFFER_STATUS_UPDATE_REQUEST,
+    INVESTMENT_OFFER_STATUS_UPDATE_SUCCESS,
+    INVESTMENT_OFFER_STATUS_UPDATE_FAIL
+} from '../constants/investmentOfferconstants'
+import { toast } from "react-toastify";
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
@@ -20,3 +26,25 @@ export const investementOffertList=()=>{
         }
     }
 }
+
+export const updateInvestmentOfferStatus = (id, status) => {
+    return async (dispatch) => {
+        dispatch({ type: INVESTMENT_OFFER_STATUS_UPDATE_REQUEST });
+
+        try {
+            const response = await axios.patch(`${base_url}/investment-offers/${id}/status`, { status });
+            dispatch({
+                type: INVESTMENT_OFFER_STATUS_UPDATE_SUCCESS,
+                payload: { id, status }
+            });
+            toast.success("Investment Offer status updated successfully");
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            dispatch({
+                type: INVESTMENT_OFFER_STATUS_UPDATE_FAIL,
+                payload: errorMessage
+            });
+            toast.error(`Error: ${errorMessage}`);
+        }
+    };
+};

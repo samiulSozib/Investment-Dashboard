@@ -6,6 +6,9 @@ import {
     INVESTMENT_REQUEST_DELETE_REQUEST,
     INVESTMENT_REQUEST_DELETE_SUCCESS,
     INVESTMENT_REQUEST_DELETE_FAIL,
+    INVESTMENT_REQUEST_STATUS_UPDATE_REQUEST,
+    INVESTMENT_REQUEST_STATUS_UPDATE_SUCCESS,
+    INVESTMENT_REQUEST_STATUS_UPDATE_FAIL
 } from '../constants/investmentRequestConstants'
 import { toast } from "react-toastify";
 
@@ -44,3 +47,26 @@ export const deleteInvestmentRequest = (id) => {
       }
     };
   };
+
+
+  export const updateInvestmentRequestStatus = (id, status) => {
+    return async (dispatch) => {
+        dispatch({ type: INVESTMENT_REQUEST_STATUS_UPDATE_REQUEST });
+
+        try {
+            const response = await axios.patch(`${base_url}/investment-requests/${id}/status`, { status });
+            dispatch({
+                type: INVESTMENT_REQUEST_STATUS_UPDATE_SUCCESS,
+                payload: { id, status }
+            });
+            toast.success("Investment Request status updated successfully");
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            dispatch({
+                type: INVESTMENT_REQUEST_STATUS_UPDATE_FAIL,
+                payload: errorMessage
+            });
+            toast.error(`Error: ${errorMessage}`);
+        }
+    };
+};

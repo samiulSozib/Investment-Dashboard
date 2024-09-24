@@ -10,7 +10,10 @@ import {BUSINESS_LIST_REQUEST,
     DELETE_BUSINESS_FAIL,
     EDIT_BUSINESS_REQUEST,
     EDIT_BUSINESS_SUCCESS,
-    EDIT_BUSINESS_FAIL
+    EDIT_BUSINESS_FAIL,
+    UPDATE_BUSINESS_STATUS_REQUEST,
+    UPDATE_BUSINESS_STATUS_SUCCESS,
+    UPDATE_BUSINESS_STATUS_FAIL 
 } from '../constants/businessConstants'
 import { toast } from 'react-toastify';
 
@@ -92,3 +95,24 @@ export const insertBusiness = (businessData) => {
       }
     };
   };
+
+
+  export const updateBusinessStatus = (businessId, newStatus) => {
+    return async (dispatch) => {
+        dispatch({ type: UPDATE_BUSINESS_STATUS_REQUEST });
+        try {
+            // Make the PATCH request to update the business status
+            const response = await axios.patch(`${base_url}/business/${businessId}/status`, {
+                status: newStatus,
+            });
+
+            const { data } = response.data;
+            dispatch({ type: UPDATE_BUSINESS_STATUS_SUCCESS, payload: data });
+            toast.success("Business Status Updated Successfully");
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            dispatch({ type: UPDATE_BUSINESS_STATUS_FAIL, payload: errorMessage });
+            toast.error(`Error : ${errorMessage}`);
+        }
+    };
+};

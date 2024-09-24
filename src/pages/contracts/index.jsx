@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Menu, MenuItem,Typography } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem, Typography, Popover } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
-import {useDispatch,useSelector} from 'react-redux'
-import {contractList,deleteContract} from '../../redux/actions/contractActions'
+import { useDispatch, useSelector } from 'react-redux';
+import { contractList, deleteContract,updateContractStatus } from '../../redux/actions/contractActions';
 import ContractDetails from "./contractDetails";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,9 +17,18 @@ const Contracts = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [statusAnchorEl, setStatusAnchorEl] = useState(null);
+  const [hoveredRowId, setHoveredRowId] = useState(null);
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
+
+  const dispatch = useDispatch();
+  const { loading, error, contracts } = useSelector((state) => state.contracts);
+
+  useEffect(() => {
+    dispatch(contractList());
+  }, [dispatch]);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -38,13 +46,9 @@ const Contracts = () => {
   };
 
   const handleDelete = () => {
-    dispatch(deleteContract(selectedRowId))
+    dispatch(deleteContract(selectedRowId));
     handleMenuClose();
   };
-
-
-
-  const navigate = useNavigate();
 
   const handleDetails = () => {
     const contract = contracts.find((cont) => cont.id === selectedRowId);
@@ -58,13 +62,28 @@ const Contracts = () => {
     setSelectedContract(null);
   };
 
+  const handleStatusMenuOpen = (event, id) => {
+    setHoveredRowId(id);
+    setStatusAnchorEl(event.currentTarget);
+  };
+
+  const handleStatusMenuClose = () => {
+    setStatusAnchorEl(null);
+    setHoveredRowId(null);
+  };
+
+  const handleStatusChange = (id, status) => {
+    dispatch(updateContractStatus(id, status));
+    handleStatusMenuClose();
+  };
+
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
     {
       field: "investment.amount",
       headerName: "Amount",
       flex: 1,
-      renderCell: (params) => `$${params.row.investment.amount}`, // Display investment amount
+      renderCell: (params) => `$${params.row.investment.amount}`,
     },
     {
       field: "investment.investment_period",
@@ -72,25 +91,45 @@ const Contracts = () => {
       type: "number",
       headerAlign: "left",
       align: "left",
-      renderCell: (params) => `${params.row.investment.investment_period} months`, // Display period
+      renderCell: (params) => `${params.row.investment.investment_period} months`,
     },
     {
       field: "investment.expected_return",
       headerName: "Expected Return",
       flex: 1,
-      renderCell: (params) => `$${params.row.investment.expected_return}`, // Display expected return
+      renderCell: (params) => `$${params.row.investment.expected_return}`,
     },
     {
       field: "status",
       headerName: "Status",
       flex: 1,
       renderCell: (params) => (
-        <Typography color={params.row.status === 'active' ? 'green' : 'red'}>
-          {params.row.status.charAt(0).toUpperCase() + params.row.status.slice(1)}
-        </Typography>
+        <Box
+        display="flex"
+      
+        alignItems="center"
+        width="100%"
+        height="100%"
+          onMouseEnter={(event) => handleStatusMenuOpen(event, params.row.id)}
+          onMouseLeave={handleStatusMenuClose}
+        >
+          <Typography>{params.value}</Typography>
+          <Popover
+            open={Boolean(statusAnchorEl) && hoveredRowId === params.row.id}
+            anchorEl={statusAnchorEl}
+            onClose={handleStatusMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem onClick={() => handleStatusChange(params.row.id, 'active')}>Active</MenuItem>
+            <MenuItem onClick={() => handleStatusChange(params.row.id, 'completed')}>Completed</MenuItem>
+            <MenuItem onClick={() => handleStatusChange(params.row.id, 'terminated')}>Terminated</MenuItem>
+          </Popover>
+        </Box>
       ),
     },
-    
     {
       field: "actions",
       headerName: "Actions",
@@ -113,23 +152,11 @@ const Contracts = () => {
       ),
     },
   ];
-  
-  
-
-  const dispatch=useDispatch()
-  const {loading,error,contracts} =useSelector((state)=>state.contracts)
-
-  useEffect(()=>{
-    dispatch(contractList())
-  },[dispatch])
-
- 
 
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="Contracts" subtitle="Contracts List" />
-
       </Box>
 
       <Box
@@ -142,9 +169,6 @@ const Contracts = () => {
           "& .MuiDataGrid-cell": {
             borderBottom: "none",
           },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
             borderBottom: "none",
@@ -156,12 +180,6 @@ const Contracts = () => {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
           },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
         }}
       >
         <DataGrid
@@ -172,7 +190,7 @@ const Contracts = () => {
       </Box>
 
       <ContractDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} contract={selectedContract} colors={colors} />
-      <ToastContainer/>
+      <ToastContainer />
     </Box>
   );
 };

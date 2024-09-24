@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem, Button, Popover, Typography } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -11,7 +11,8 @@ import { useTheme } from "@mui/material";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
 import {useDispatch,useSelector} from 'react-redux'
-import {businessList,deleteBusiness,insertBusiness,editBusiness} from '../../redux/actions/businessAction'
+import {businessList,deleteBusiness,insertBusiness,editBusiness,updateBusinessStatus} from '../../redux/actions/businessAction'
+import {updateInvestmentStatus} from '../../redux/actions/investmentAction'
 import {categoryList} from '../../redux/actions/categoryActions'
 
 import AddBusinessDialog from "./addBusinessDialog";
@@ -25,6 +26,13 @@ const Businesses = () => {
     const parts = rowId.split("-");
     return parts.length > 1 ? parseInt(parts[1], 10) : null;
   };
+
+  // Status Popover state
+  const [statusAnchorEl, setStatusAnchorEl] = useState(null);
+  const [hoveredRowId, setHoveredRowId] = useState(null);
+
+  const [investmentStatusAnchorEl, setInvestmentStatusAnchorEl] = useState(null);
+  const [hoveredInvestmentId, setHoveredInvestmentId] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
@@ -51,6 +59,40 @@ const Businesses = () => {
   },[dispatch])
 
 
+    // Status Popover open/close handlers
+    const handleBusinessStatusMenuOpen = (event, id) => {
+      setHoveredRowId(id);
+      setStatusAnchorEl(event.currentTarget);
+    };
+
+    const handleBusinessStatusMenuClose = () => {
+      setStatusAnchorEl(null);
+      setHoveredRowId(null);
+    };
+  
+    const handleBusinessStatusChange = (id, status) => {
+      const business_id=extractId(id)
+      dispatch(updateBusinessStatus(business_id, status));
+      handleBusinessStatusMenuClose();
+    };
+
+    // Open/close handlers for investment status popover
+    const handleInvestmentStatusMenuOpen = (event, id) => {
+      setHoveredInvestmentId(id);
+      setInvestmentStatusAnchorEl(event.currentTarget);
+    };
+
+    const handleInvestmentStatusMenuClose = () => {
+      setInvestmentStatusAnchorEl(null);
+      setHoveredInvestmentId(null);
+    };
+
+    // Handle investment status change
+    const handleInvestmentStatusChange = (id, status) => {
+      const investment_id = extractId(id); // Extract ID in a similar way as for business
+      dispatch(updateInvestmentStatus(investment_id, status));
+      handleInvestmentStatusMenuClose();
+    };
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -195,6 +237,7 @@ const Businesses = () => {
 
 
   const toggleExpand = (id) => {
+    
     setExpandedRowId((prevExpandedRowId) =>
       prevExpandedRowId === id ? null : id
     );
@@ -286,7 +329,38 @@ const Businesses = () => {
     { field: "min_investment_period", headerName: "Min Investment Period", flex: 1 },
     { field: "profit_share_ratio", headerName: "Profit Share (%)", flex: 1, type: "number" },
     { field: "loss_share_ratio", headerName: "Loss Share (%)", flex: 1, type: "number" },
-    { field: "status", headerName: "Status", flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      
+      flex: 1,
+      renderCell: (params) => (
+        <Box
+        display="flex"
+      
+      alignItems="center"
+      width="100%"
+      height="100%"
+          onMouseEnter={(event) => handleBusinessStatusMenuOpen(event, params.row.id)}
+          onMouseLeave={handleBusinessStatusMenuClose}
+        >
+          <Typography>{params.value}</Typography>
+          <Popover
+            open={Boolean(statusAnchorEl) && hoveredRowId === params.row.id}
+            anchorEl={statusAnchorEl}
+            onClose={handleBusinessStatusMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem onClick={() => handleBusinessStatusChange(params.row.id, 'active')}>Active</MenuItem>
+            <MenuItem onClick={() => handleBusinessStatusChange(params.row.id, 'inactive')}>Inactive</MenuItem>
+            <MenuItem onClick={() => handleBusinessStatusChange(params.row.id, 'closed')}>Closed</MenuItem>
+          </Popover>
+        </Box>
+      ),
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -317,12 +391,40 @@ const Businesses = () => {
     { field: "investment_period", headerName: "Investment Period", flex: 1 },
     { field: "expected_return", headerName: "Expected Return", flex: 1 },
     { field: "termination_date", headerName: "Termination Date", flex: 1, type: "date" },
-    { field: "status", headerName: "Status", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1,
+      renderCell: (params) => (
+        <Box
+          display="flex"
+          alignItems="center"
+          width="100%"
+          height="100%"
+          onMouseEnter={(event) => handleInvestmentStatusMenuOpen(event, params.row.id)}
+          onMouseLeave={handleInvestmentStatusMenuClose}
+        >
+          <Typography>{params.value}</Typography>
+          <Popover
+            open={Boolean(investmentStatusAnchorEl) && hoveredInvestmentId === params.row.id}
+            anchorEl={investmentStatusAnchorEl}
+            onClose={handleInvestmentStatusMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem onClick={() => handleInvestmentStatusChange(params.row.id, 'active')}>Active</MenuItem>
+            <MenuItem onClick={() => handleInvestmentStatusChange(params.row.id, 'inactive')}>Inactive</MenuItem>
+            <MenuItem onClick={() => handleInvestmentStatusChange(params.row.id, 'terminated')}>Terminated</MenuItem>
+            <MenuItem onClick={() => handleInvestmentStatusChange(params.row.id, 'completed')}>Completed</MenuItem>
+          </Popover>
+        </Box>
+      ),
+    },
   ];
   
   const rows = transformData(businesses);
 
   useEffect(() => {
+    console.log(rows)
     if (rows.length > 0) {
       const firstParent = rows.find(row => row.isParent);
       if (firstParent) {

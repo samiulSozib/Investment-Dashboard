@@ -10,7 +10,10 @@ import {
     DELETE_BUSINESS_FAIL,
     EDIT_BUSINESS_REQUEST,
     EDIT_BUSINESS_SUCCESS,
-    EDIT_BUSINESS_FAIL
+    EDIT_BUSINESS_FAIL,
+    UPDATE_BUSINESS_STATUS_REQUEST,
+    UPDATE_BUSINESS_STATUS_SUCCESS,
+    UPDATE_BUSINESS_STATUS_FAIL
   } from '../constants/businessConstants';
   
   const initialState = {
@@ -59,6 +62,23 @@ import {
           ),
         };
       case EDIT_BUSINESS_FAIL:
+        return { ...state, loading: false, error: action.payload };
+
+      case UPDATE_BUSINESS_STATUS_REQUEST:
+        return { ...state, loading: true };
+    
+      case UPDATE_BUSINESS_STATUS_SUCCESS:
+        return {
+            ...state,
+            loading: false,
+            businesses: state.businesses.map(business =>
+              business.id === action.payload.id
+                ? { ...business, status: action.payload.status }
+                : business
+            ),
+          };
+    
+      case UPDATE_BUSINESS_STATUS_FAIL:
         return { ...state, loading: false, error: action.payload };
         
       default:

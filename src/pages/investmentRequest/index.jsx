@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, IconButton, Menu, MenuItem, Toolbar } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem, Popover, Typography } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -7,7 +7,8 @@ import { tokens } from "../../theme";
 import { useTheme } from "@mui/material";
 import Header from '../../components/Header';
 import { useDispatch, useSelector } from 'react-redux';
-import { investementRequestList, deleteInvestmentRequest } from '../../redux/actions/investmentRequestActions';
+import { investementRequestList, deleteInvestmentRequest,updateInvestmentRequestStatus } from '../../redux/actions/investmentRequestActions';
+import {updateInvestmentOfferStatus} from '../../redux/actions/investmentOfferActions'
 import { ToastContainer } from "react-toastify";
 import InvestmentRequestDetails from "./investmentRequestDetails";
 import ChildDataGrid from "./childDataGrid";
@@ -22,12 +23,59 @@ const InvestmentRequest = () => {
     return parts.length > 1 ? parseInt(parts[1], 10) : null;
   };
 
+
+    // Status Popover state
+    const [statusAnchorEl, setStatusAnchorEl] = useState(null);
+    const [hoveredRowId, setHoveredRowId] = useState(null);
+  
+    const [investmentOfferStatusAnchorEl, setInvestmentOfferStatusAnchorEl] = useState(null);
+    const [hoveredInvestmentOfferId, setHoveredInvestmentOfferId] = useState(null);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedInvestmentRequest, setSelectedInvestmentRequest] = useState(null);
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [firstParentId, setFirstParentId] = useState(null);
+
+
+      // Status Popover open/close handlers
+      const handleInvestmentRequestStatusMenuOpen = (event, id) => {
+        setHoveredRowId(id);
+        setStatusAnchorEl(event.currentTarget);
+      };
+  
+      const handleInvestmentRequestStatusMenuClose = () => {
+        setStatusAnchorEl(null);
+        setHoveredRowId(null);
+      };
+    
+      const handleInvestmentRequestStatusChange = (id, status) => {
+        const investment_request_id=extractId(id)
+        
+        dispatch(updateInvestmentRequestStatus(investment_request_id, status));
+        handleInvestmentRequestStatusMenuClose();
+      };
+  
+      // Open/close handlers for investment status popover
+      const handleInvestmentOfferStatusMenuOpen = (event, id) => {
+        setHoveredInvestmentOfferId(id);
+        setInvestmentOfferStatusAnchorEl(event.currentTarget);
+      };
+  
+      const handleInvestmentOfferStatusMenuClose = () => {
+        setInvestmentOfferStatusAnchorEl(null);
+        setHoveredInvestmentOfferId(null);
+      };
+  
+      // Handle investment status change
+      const handleInvestmentOfferStatusChange = (id, status) => {
+        const investment_offer_id = extractId(id); 
+        
+        dispatch(updateInvestmentOfferStatus(investment_offer_id, status));
+        handleInvestmentOfferStatusMenuClose();
+      };
+
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -139,7 +187,34 @@ const InvestmentRequest = () => {
     {
       field: "status",
       headerName: "Status",
+      
       flex: 1,
+      renderCell: (params) => (
+        <Box
+        display="flex"
+      
+      alignItems="center"
+      width="100%"
+      height="100%"
+          onMouseEnter={(event) => handleInvestmentRequestStatusMenuOpen(event, params.row.id)}
+          onMouseLeave={handleInvestmentRequestStatusMenuClose}
+        >
+          <Typography>{params.value}</Typography>
+          <Popover
+            open={Boolean(statusAnchorEl) && hoveredRowId === params.row.id}
+            anchorEl={statusAnchorEl}
+            onClose={handleInvestmentRequestStatusMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem onClick={() => handleInvestmentRequestStatusChange(params.row.id, 'pending')}>Pending</MenuItem>
+            <MenuItem onClick={() => handleInvestmentRequestStatusChange(params.row.id, 'approved')}>Approved</MenuItem>
+            <MenuItem onClick={() => handleInvestmentRequestStatusChange(params.row.id, 'rejected')}>Rejected</MenuItem>
+          </Popover>
+        </Box>
+      ),
     },
     {
       field: "user_name",
@@ -173,7 +248,34 @@ const InvestmentRequest = () => {
     { field: "offer_id", headerName: "Offer ID", flex: 0.5 },
     { field: "offered_amount", headerName: "Offered Amount", flex: 1 },
     { field: "offer_proposed_share", headerName: "Proposed Share (%)", flex: 1 },
-    { field: "offer_status", headerName: "Offer Status", flex: 1 },
+    { field: "offer_status", headerName: "Offer Status", flex: 1,
+      renderCell: (params) => (
+        <Box
+          display="flex"
+          alignItems="center"
+          width="100%"
+          height="100%"
+          onMouseEnter={(event) => handleInvestmentOfferStatusMenuOpen(event, params.row.id)}
+          onMouseLeave={handleInvestmentOfferStatusMenuClose}
+        >
+          <Typography>{params.value}</Typography>
+          <Popover
+            open={Boolean(investmentOfferStatusAnchorEl) && hoveredInvestmentOfferId === params.row.id}
+            anchorEl={investmentOfferStatusAnchorEl}
+            onClose={handleInvestmentOfferStatusMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'pending')}>Pending</MenuItem>
+            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'accepted')}>Accepted</MenuItem>
+            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'rejected')}>Rejected</MenuItem>
+            
+          </Popover>
+        </Box>
+      ),
+    },
   ];
 
   const dispatch = useDispatch();
