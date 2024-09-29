@@ -65,7 +65,15 @@ const Users = () => {
     { field: "name", headerName: "Name", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
     { field: "phone_number", headerName: "Phone", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
+    { 
+      field: "user_role.role", 
+      headerName: "Role", 
+      flex: 1 ,
+      renderCell: (params) => {
+        const roles = params.row.user_role?.map(role => role.role).join(', ') || "N/A";
+        return roles;
+      }
+    },
     { field: "is_verified", headerName: "Verified", flex: 1 },
     {
       field: "actions",

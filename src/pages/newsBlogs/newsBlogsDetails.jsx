@@ -64,7 +64,7 @@ const NewsBlogDetails = ({ open, handleClose, newsBlog, colors }) => {
               >
                 {newsBlog.news_blogs_images.map((image, index) => (
                   <div key={index}>
-                    <img src={image.image_url} alt={`news-blog-image-${index}`} />
+                    <img src={image.image_url} alt={`news-blog-image-${index}`} loading="lazy"/>
                   </div>
                 ))}
               </Carousel>

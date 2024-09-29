@@ -10,6 +10,8 @@ import { tokens } from "../../theme";
 import {useDispatch,useSelector} from 'react-redux'
 import {singIn} from '../../redux/actions/authAction'
 import { useNavigate } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
 
 const Login = () => {
   const theme = useTheme();
@@ -132,6 +134,7 @@ const Login = () => {
         </Button>
         
       </Box>
+      <ToastContainer/>
     </Box>
   );
 };

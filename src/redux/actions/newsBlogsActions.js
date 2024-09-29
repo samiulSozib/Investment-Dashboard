@@ -21,14 +21,17 @@ const base_url='https://investment-api.nodescript-it.com'
 
 
 
-export const newsBlogsList=()=>{
+export const newsBlogsList=(page,item_per_page)=>{
     return async(dispatch)=>{
+      
         dispatch({type:NEWS_BLOGS_LIST_REQUEST})
         try{
-            const response=await axios.get(`${base_url}/news-blogs`)
+            const response=await axios.get(`${base_url}/news-blogs?page=${page}&item_per_page=${item_per_page}`)
+            //console.log(response.data)
+            const data=response.data.data
+            const totalItems=response.data.payload.pagination.total_items
            
-            const {data}=response.data
-            dispatch({type:NEWS_BLOGS_LIST_SUCCESS,payload:data})
+            dispatch({type:NEWS_BLOGS_LIST_SUCCESS,payload: {data,totalItems}})
         }catch(error){
             dispatch({type:NEWS_BLOGS_LIST_FAIL,payload:error})
         }

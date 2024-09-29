@@ -20,6 +20,7 @@ import {
     businesses: [],
     error: null,
     loading: false,
+    totalItems:0
   };
   
   const businessReducer = (state = initialState, action) => {
@@ -28,7 +29,7 @@ import {
         return { ...state, loading: true };
         
       case BUSINESS_LIST_SUCCESS:
-        return { ...state, loading: false, businesses: action.payload };
+        return { ...state, loading: false, businesses: action.payload.data,totalItems:action.payload.totalItems };
         
       case BUSINESS_LIST_FAIL:
         return { ...state, loading: false, error: action.payload };

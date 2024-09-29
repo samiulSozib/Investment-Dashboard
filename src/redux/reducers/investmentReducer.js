@@ -12,7 +12,8 @@ import {INVESTMENT_LIST_REQUEST,
 const initialState={
     investments:[],
     error:null ,
-    loading:false
+    loading:false,
+    totalItems:0
 }
 
 const investmentReducer=(state=initialState,action)=>{
@@ -20,7 +21,7 @@ const investmentReducer=(state=initialState,action)=>{
         case INVESTMENT_LIST_REQUEST:
             return {...state,loading:true}
         case INVESTMENT_LIST_SUCCESS:
-            return {...state,loading:false,investments:action.payload}
+            return {...state,loading:false,investments:action.payload.data,totalItems:action.payload.totalItems}
         case INVESTMENT_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
         case INVESTMENT_DELETE_REQUEST:

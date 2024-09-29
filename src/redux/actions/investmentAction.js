@@ -18,13 +18,14 @@ const base_url='https://investment-api.nodescript-it.com'
 
 
 
-export const investmentList=()=>{
+export const investmentList=(page,item_per_page)=>{
     return async(dispatch)=>{
         dispatch({type:INVESTMENT_LIST_REQUEST})
         try{
-            const response=await axios.get(`${base_url}/investments`)
-            const {data}=response.data
-            dispatch({type:INVESTMENT_LIST_SUCCESS,payload:data})
+            const response=await axios.get(`${base_url}/investments?page=${page}&item_per_page=${item_per_page}`)
+            const data=response.data.data
+            const totalItems=response.data.payload.pagination.total_items
+            dispatch({type:INVESTMENT_LIST_SUCCESS,payload:{data,totalItems}})
         }catch(error){
             const errorMessage = error.response ? error.response.data.message : error.message;
             dispatch({type:INVESTMENT_LIST_FAIL,payload:errorMessage})

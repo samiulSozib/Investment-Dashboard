@@ -54,7 +54,8 @@ function App() {
               <Route path="/investments" element={<ProtectedRoute><Investments/></ProtectedRoute>} />
               <Route path="/investment-offers" element={<ProtectedRoute><InvestmentOffer/></ProtectedRoute>} />
               <Route path="/categories" element={<ProtectedRoute><Category/></ProtectedRoute>} />
-              <Route path="/news-blogs" element={<NewsBlogs/>} />
+              <Route path="/news-blogs" element={<ProtectedRoute><NewsBlogs/></ProtectedRoute>} />
+              
               <Route path="/business-performance" element={<ProtectedRoute><BusinessPerformce/></ProtectedRoute>} />
               <Route path="/best-performing-investor" element={<ProtectedRoute><BestPerformingInvestor/></ProtectedRoute>} />
               <Route path="/best-performing-business" element={<ProtectedRoute><BestPerformingBusiness/></ProtectedRoute>} />

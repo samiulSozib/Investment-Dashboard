@@ -122,7 +122,7 @@ const UserDetails = ({ open, handleClose, user, colors }) => {
                   }}
                 >
                   <Typography variant="body1">
-                    <strong>Role:</strong> {user.role}
+                    <strong>Role:</strong> {user.user_role.map(role => role.role).join(', ') || "N/A"}
                   </Typography>
                 </Box>
               </Grid>

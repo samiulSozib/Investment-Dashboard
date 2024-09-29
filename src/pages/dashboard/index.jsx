@@ -12,6 +12,7 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+import { ToastContainer } from "react-toastify";
 
 
 
@@ -302,6 +303,7 @@ const Dashboard = () => {
           </Box>
         </Box> */}
       </Box>
+      <ToastContainer/>
     </Box>
   );
 };

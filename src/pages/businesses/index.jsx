@@ -27,6 +27,8 @@ const Businesses = () => {
     return parts.length > 1 ? parseInt(parts[1], 10) : null;
   };
 
+
+
   // Status Popover state
   const [statusAnchorEl, setStatusAnchorEl] = useState(null);
   const [hoveredRowId, setHoveredRowId] = useState(null);
@@ -47,16 +49,19 @@ const Businesses = () => {
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [firstParentId, setFirstParentId] = useState(null);
 
+  const [page, setPage] = useState(0); 
+  const [pageSize, setPageSize] = useState(10);
+
 
   
   const dispatch=useDispatch()
-  const {loading,error,businesses} =useSelector((state)=>state.businesses)
+  const {loading,error,businesses,totalItems} =useSelector((state)=>state.businesses)
   const {categories}=useSelector((state)=>state.category)
 
   useEffect(()=>{
-    dispatch(businessList())
+    dispatch(businessList(page+1,pageSize))
     dispatch(categoryList())
-  },[dispatch])
+  },[dispatch,page,pageSize])
 
 
     // Status Popover open/close handlers
@@ -493,9 +498,19 @@ const Businesses = () => {
                 <DataGrid
                   rows={[row]}
                   columns={parentColumns}
-                  pageSize={5}
-                  autoHeight
-                  hideFooter
+                  pagination
+                  paginationMode="server"
+                  rowCount={totalItems}
+                  paginationModel={{
+                    page: page,
+                    pageSize: pageSize,
+                  }}  // Control pagination fully with this model
+                  onPaginationModelChange={(model) => {
+                    setPage(model.page);       // Update the page state
+                    setPageSize(model.pageSize);  // Update the pageSize state
+                  }}
+                  pageSizeOptions={[3, 10, 20]}
+                 hideFooter
                  
                   sx={{
                     "& .MuiDataGrid-columnHeaders": {
@@ -510,12 +525,13 @@ const Businesses = () => {
                       borderColor: colors.grey[700],
                     },
                   }}
+                  components={{ Toolbar: GridToolbar }}
                 />
                 {expandedRowId === row.id && (
                   <DataGrid
                     rows={rows.filter(childRow => childRow.parentId === row.id)}
                     columns={childColumns}
-                    pageSize={5}
+                    hideFooter
                     autoHeight
                     sx={{
                       "& .MuiDataGrid-columnHeaders": {

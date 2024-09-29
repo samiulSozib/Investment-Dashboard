@@ -22,6 +22,9 @@ const InvestmentRequests = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedInvestment, setSelectedInvestment] = useState(null);
 
+  const [page, setPage] = useState(0); 
+  const [pageSize, setPageSize] = useState(10);
+
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
     setSelectedRowId(id);
@@ -124,11 +127,11 @@ const InvestmentRequests = () => {
   
 
   const dispatch=useDispatch()
-  const {investments,loading,error}=useSelector((state)=>state.investments)
+  const {investments,loading,error,totalItems}=useSelector((state)=>state.investments)
 
   useEffect(()=>{
-    dispatch(investmentList())
-  },[dispatch])
+    dispatch(investmentList(page+1,pageSize))
+  },[dispatch,page,pageSize])
 
   
 
@@ -170,6 +173,18 @@ const InvestmentRequests = () => {
         <DataGrid
           rows={investments}
           columns={columns}
+          pagination
+          paginationMode="server"
+          rowCount={totalItems}
+          paginationModel={{
+            page: page,
+            pageSize: pageSize,
+          }}  // Control pagination fully with this model
+          onPaginationModelChange={(model) => {
+            setPage(model.page);       // Update the page state
+            setPageSize(model.pageSize);  // Update the pageSize state
+          }}
+          pageSizeOptions={[3, 10, 20]}
           components={{ Toolbar: GridToolbar }}
         />
       </Box>

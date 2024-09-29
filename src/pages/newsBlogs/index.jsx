@@ -28,11 +28,15 @@ const NewsBlogs = () => {
   const [news_blogs_images, setNewsBlogsImages] = useState([]); // Existing images
 
   const dispatch = useDispatch();
-  const { newsBlogs } = useSelector((state) => state.newsBlogs);
+  const { newsBlogs,totalItems } = useSelector((state) => state.newsBlogs);
+
+  const [page, setPage] = useState(0); 
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    dispatch(newsBlogsList());
-  }, [dispatch]);
+    dispatch(newsBlogsList(page+1,pageSize));
+  }, [dispatch,page,pageSize]);
+
 
   // Menu actions
   const handleMenuOpen = (event, id) => {
@@ -224,7 +228,23 @@ const NewsBlogs = () => {
           "& .MuiDataGrid-toolbarContainer .MuiButton-text": { color: `${colors.grey[100]} !important` },
         }}
       >
-        <DataGrid rows={newsBlogs} columns={columns} components={{ Toolbar: GridToolbar }} />
+        <DataGrid
+          rows={newsBlogs}
+          columns={columns}
+          pagination
+          paginationMode="server"
+          rowCount={totalItems}
+          paginationModel={{
+            page: page,
+            pageSize: pageSize,
+          }}  // Control pagination fully with this model
+          onPaginationModelChange={(model) => {
+            setPage(model.page);       // Update the page state
+            setPageSize(model.pageSize);  // Update the pageSize state
+          }}
+          pageSizeOptions={[3, 10, 20]}
+          components={{ Toolbar: GridToolbar }}
+        />
       </Box>
 
       {/* Add/Edit News Dialog */}

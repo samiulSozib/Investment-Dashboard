@@ -24,14 +24,15 @@ const base_url='https://investment-api.nodescript-it.com'
 
 
 
-export const businessList=()=>{
+export const businessList=(page,item_per_page)=>{
     return async(dispatch)=>{
         dispatch({type:BUSINESS_LIST_REQUEST})
         try{
-            const response=await axios.get(`${base_url}/business`)
+            const response=await axios.get(`${base_url}/business?page=${page}&item_per_page=${item_per_page}`)
            
-            const {data}=response.data
-            dispatch({type:BUSINESS_LIST_SUCCESS,payload:data})
+            const data=response.data.data
+            const totalItems=response.data.payload.pagination.total_items
+            dispatch({type:BUSINESS_LIST_SUCCESS,payload:{data,totalItems}})
 
         }catch(error){
             dispatch({type:BUSINESS_LIST_FAIL,payload:error})
