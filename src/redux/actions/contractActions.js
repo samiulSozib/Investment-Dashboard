@@ -15,19 +15,20 @@ import { toast } from "react-toastify";
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
-//const base_url='http://localhost:1000'
-const base_url='https://investment-api.nodescript-it.com'
+//const base_url='http://localhost:2000'
+// const base_url='https://investment-api.nodescript-it.com'
+import { base_url } from "../../util/config"; 
 
 
 
-export const contractList=()=>{
+export const contractList=(page,item_per_page)=>{
     return async(dispatch)=>{
         dispatch({type:CONTRACT_LIST_REQUEST})
         try{
-            const response=await axios.get(`${base_url}/contracts`)
-           
-            const {data}=response.data
-            dispatch({type:CONTRACT_LIST_SUCCESS,payload:data})
+            const response=await axios.get(`${base_url}/contracts?page=${page}&item_per_page=${item_per_page}`)
+            const data=response.data.data
+            const totalItems=response.data.payload.pagination.total_items
+            dispatch({type:CONTRACT_LIST_SUCCESS,payload:{data,totalItems}})
         }catch(error){
             dispatch({type:CONTRACT_LIST_FAIL,payload:error})
         }

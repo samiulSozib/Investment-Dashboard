@@ -1,4 +1,8 @@
-import {INVESTMENT_REQUEST_LIST_REQUEST,
+import {
+    INVESTMENT_REQUEST_DETAILS_REQUEST,
+    INVESTMENT_REQUEST_DETAILS_SUCCESS,
+    INVESTMENT_REQUEST_DETAILS_FAIL,
+    INVESTMENT_REQUEST_LIST_REQUEST,
     INVESTMENT_REQUEST_LIST_SUCCESS,
     INVESTMENT_REQUEST_LIST_FAIL,
     INVESTMENT_REQUEST_DELETE_REQUEST,
@@ -11,6 +15,7 @@ import {INVESTMENT_REQUEST_LIST_REQUEST,
 
 const initialState={
     investmentRequests:[],
+    selectedInvestmentRequest: null,
     error:null ,
     loading:false
 }
@@ -25,6 +30,15 @@ const investmentRequestReducer=(state=initialState,action)=>{
 
         case INVESTMENT_REQUEST_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
+        
+        case INVESTMENT_REQUEST_DETAILS_REQUEST:
+            return { ...state, loading: true };
+    
+        case INVESTMENT_REQUEST_DETAILS_SUCCESS:
+            return { ...state, loading: false, selectedInvestmentRequest: action.payload };
+    
+        case INVESTMENT_REQUEST_DETAILS_FAIL:
+            return { ...state, loading: false, error: action.payload };
 
         case INVESTMENT_REQUEST_DELETE_REQUEST:
             return { ...state, loading: true };

@@ -18,13 +18,15 @@ const Users = () => {
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [page,setPage]=useState(0);
+  const [pageSize,setPageSize]=useState(10)
 
   const dispatch = useDispatch();
-  const { users } = useSelector((state) => state.user);
+  const { users,totalItems } = useSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(userList());
-  }, [dispatch]);
+    dispatch(userList(page,pageSize));
+  }, [dispatch,page,pageSize]);
 
 
 
@@ -121,6 +123,18 @@ const Users = () => {
         <DataGrid
           rows={users}
           columns={columns}
+          pagination
+          paginationMode="server"
+          rowCount={totalItems}
+          paginationModel={{
+            page: page,
+            pageSize: pageSize,
+          }}  // Control pagination fully with this model
+          onPaginationModelChange={(model) => {
+            setPage(model.page);       // Update the page state
+            setPageSize(model.pageSize);  // Update the pageSize state
+          }}
+          pageSizeOptions={[3, 10, 20]}
           components={{ Toolbar: GridToolbar }}
         />
       </Box>

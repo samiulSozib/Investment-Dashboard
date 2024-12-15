@@ -3,7 +3,8 @@ import {USERS_LIST_REQUEST,USERS_LIST_SUCCESS,USERS_LIST_FAIL,USER_DELETE_REQUES
 const initialState={
     users:[],
     error:null ,
-    loading:false
+    loading:false,
+    totalItems:0
 }
 
 const usersReducer=(state=initialState,action)=>{
@@ -11,7 +12,7 @@ const usersReducer=(state=initialState,action)=>{
         case USERS_LIST_REQUEST:
             return {...state,loading:true}
         case USERS_LIST_SUCCESS:
-            return {...state,loading:false,users:action.payload}
+            return {...state,loading:false,users:action.payload.data,totalItems:action.payload.totalItems}
         case USERS_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
 

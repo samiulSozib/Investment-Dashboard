@@ -3,14 +3,18 @@ import {INVESTMENT_OFFER_LIST_REQUEST,INVESTMENT_OFFER_LIST_SUCCESS,INVESTMENT_O
 
     INVESTMENT_OFFER_STATUS_UPDATE_REQUEST,
     INVESTMENT_OFFER_STATUS_UPDATE_SUCCESS,
-    INVESTMENT_OFFER_STATUS_UPDATE_FAIL
+    INVESTMENT_OFFER_STATUS_UPDATE_FAIL,
+    INVESTMENT_OFFER_BY_REQUEST_ID_REQUEST,
+INVESTMENT_OFFER_BY_REQUEST_ID_SUCCESS,
+INVESTMENT_OFFER_BY_REQUEST_ID_FAIL
 } from '../constants/investmentOfferconstants'
 import { toast } from "react-toastify";
 
 
 //const base_url=process.env.REACT_APP_BASE_URL
 //const base_url='http://localhost:1000'
-const base_url='https://investment-api.nodescript-it.com'
+// const base_url='https://investment-api.nodescript-it.com'
+import { base_url } from "../../util/config"; 
 
 
 
@@ -48,3 +52,18 @@ export const updateInvestmentOfferStatus = (id, status) => {
         }
     };
 };
+
+
+export const investementOffertListByRequestId=(id)=>{
+    return async(dispatch)=>{
+        dispatch({type:INVESTMENT_OFFER_BY_REQUEST_ID_REQUEST})
+        try{
+            const response=await axios.get(`${base_url}/investment-offers/request/${id}`)
+            //console.log(response)
+            const data=response.data.data
+            dispatch({type:INVESTMENT_OFFER_BY_REQUEST_ID_SUCCESS,payload:data})
+        }catch(error){
+            dispatch({type:INVESTMENT_OFFER_BY_REQUEST_ID_FAIL,payload:error})
+        }
+    }
+}

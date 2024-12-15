@@ -22,6 +22,7 @@ import ProtectedRoute from './util/protectedRoute';
 import NotFound from "./util/NotFound";
 import InvestmentRequest from "./pages/investmentRequest";
 import Users from "./pages/users";
+import InvestmentRequestDetailsPage from "./pages/investmentRequest/investmentRequestDetailsPage";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -41,7 +42,7 @@ function App() {
 
         <div className="app">
           {/* Conditionally render Sidebar and Topbar if not on the login page */}
-          {!isLoginPage && <Sidebar isSidebar={isSidebar} />}
+          {!isLoginPage && <Sidebar isSidebar={isSidebar}/>}
           <main className="content">
             {!isLoginPage && <Topbar setIsSidebar={setIsSidebar} />}
             
@@ -49,6 +50,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
               <Route path="/investment-requests" element={<ProtectedRoute><InvestmentRequest/></ProtectedRoute>} />
+              <Route path="/investment-requests-details/:id" element={<ProtectedRoute><InvestmentRequestDetailsPage/></ProtectedRoute>} />
               <Route path="/businesses" element={<ProtectedRoute><Businesses/></ProtectedRoute>} />
               <Route path="/contracts" element={<ProtectedRoute><Contracts/></ProtectedRoute>} />
               <Route path="/investments" element={<ProtectedRoute><Investments/></ProtectedRoute>} />

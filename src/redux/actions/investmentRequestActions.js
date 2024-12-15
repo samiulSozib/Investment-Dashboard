@@ -1,5 +1,8 @@
 import axios from "axios";
 import {
+    INVESTMENT_REQUEST_DETAILS_REQUEST,
+    INVESTMENT_REQUEST_DETAILS_SUCCESS,
+    INVESTMENT_REQUEST_DETAILS_FAIL,
     INVESTMENT_REQUEST_LIST_REQUEST,
     INVESTMENT_REQUEST_LIST_SUCCESS,
     INVESTMENT_REQUEST_LIST_FAIL,
@@ -14,8 +17,32 @@ import { toast } from "react-toastify";
 
 //const base_url=process.env.REACT_APP_BASE_URL
 //const base_url='http://localhost:1000'
-const base_url='https://investment-api.nodescript-it.com'
+// const base_url='https://investment-api.nodescript-it.com'
+import { base_url } from "../../util/config"; 
 
+
+export const getInvestmentRequestById = (id) => {
+    return async (dispatch) => {
+        dispatch({ type: INVESTMENT_REQUEST_DETAILS_REQUEST });
+
+        try {
+            const response = await axios.get(`${base_url}/investment-requests/${id}`);
+            //console.log(response)
+            const { data } = response.data;
+            dispatch({
+                type: INVESTMENT_REQUEST_DETAILS_SUCCESS,
+                payload: data,
+            });
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message;
+            dispatch({
+                type: INVESTMENT_REQUEST_DETAILS_FAIL,
+                payload: errorMessage,
+            });
+            toast.error(`Error: ${errorMessage}`);
+        }
+    };
+};
 
 
 export const investementRequestList=()=>{

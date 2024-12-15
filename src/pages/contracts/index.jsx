@@ -22,13 +22,15 @@ const Contracts = () => {
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [selectedContract, setSelectedContract] = useState(null);
+  const [page, setPage] = useState(0); 
+  const [pageSize, setPageSize] = useState(10);
 
   const dispatch = useDispatch();
-  const { loading, error, contracts } = useSelector((state) => state.contracts);
+  const { loading, error, contracts,totalItems } = useSelector((state) => state.contracts);
 
   useEffect(() => {
-    dispatch(contractList());
-  }, [dispatch]);
+    dispatch(contractList(page+1,pageSize));
+  }, [dispatch,page,pageSize]);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -185,6 +187,18 @@ const Contracts = () => {
         <DataGrid
           rows={contracts}
           columns={columns}
+          pagination
+          paginationMode="server"
+          rowCount={totalItems}
+          paginationModel={{
+            page: page,
+            pageSize: pageSize,
+          }}  // Control pagination fully with this model
+          onPaginationModelChange={(model) => {
+            setPage(model.page);       // Update the page state
+            setPageSize(model.pageSize);  // Update the pageSize state
+          }}
+          pageSizeOptions={[3, 10, 20]}
           components={{ Toolbar: GridToolbar }}
         />
       </Box>

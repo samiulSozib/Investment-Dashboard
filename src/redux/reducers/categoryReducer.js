@@ -17,6 +17,7 @@ const initialState={
     categories:[],
     error:null ,
     loading:false,
+    totalItems:0
 }
 
 const categoryReducer=(state=initialState,action)=>{
@@ -24,7 +25,7 @@ const categoryReducer=(state=initialState,action)=>{
         case CATEGORY_LIST_REQUEST:
             return {...state,loading:true}
         case CATEGORY_LIST_SUCCESS:
-            return {...state,loading:false,categories:action.payload}
+            return {...state,loading:false,categories:action.payload.data,totalItems:action.payload.totalItems}
         case CATEGORY_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
         case CATEGORY_CREATE_REQUEST:

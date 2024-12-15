@@ -13,7 +13,8 @@ import {
 const initialState={
     contracts:[],
     error:null ,
-    loading:false
+    loading:false,
+    totalItems:0
 }
 
 const contractReducer=(state=initialState,action)=>{
@@ -21,7 +22,7 @@ const contractReducer=(state=initialState,action)=>{
         case CONTRACT_LIST_REQUEST:
             return {...state,loading:true}
         case CONTRACT_LIST_SUCCESS:
-            return {...state,loading:false,contracts:action.payload}
+            return {...state,loading:false,contracts:action.payload.data,totalItems:action.payload.totalItems}
         case CONTRACT_LIST_FAIL:
             return {...state,loading:false,error:action.payload}
         case CONTRACT_DELETE_REQUEST:

@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import InvestmentRequestDetails from "./investmentRequestDetails";
 import ChildDataGrid from "./childDataGrid";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { useNavigate } from 'react-router-dom';
 
 const InvestmentRequest = () => {
   const theme = useTheme();
@@ -37,6 +38,7 @@ const InvestmentRequest = () => {
   const [selectedInvestmentRequest, setSelectedInvestmentRequest] = useState(null);
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [firstParentId, setFirstParentId] = useState(null);
+  const navigate = useNavigate();
 
 
       // Status Popover open/close handlers
@@ -99,11 +101,25 @@ const InvestmentRequest = () => {
   };
 
   const handleDetails = () => {
-    const id=extractId(selectedRowId)
+    // const id=extractId(selectedRowId)
+    // const investmentRequest = investmentRequests.find((inv) => inv.id === id);
+    // setSelectedInvestmentRequest(investmentRequest);
+    // console.log(selectedRowId)
+    // setOpenDetailsDialog(true);
+    // handleMenuClose();
+    
+    
+  
+    const id = selectedRowId;
+    
     const investmentRequest = investmentRequests.find((inv) => inv.id === id);
     setSelectedInvestmentRequest(investmentRequest);
-    console.log(selectedRowId)
-    setOpenDetailsDialog(true);
+    
+    console.log(selectedRowId);
+    
+    // Navigate to a new page with the investment ID as a parameter
+    navigate(`/investment-requests-details/${id}`);
+    
     handleMenuClose();
   };
 
@@ -118,71 +134,55 @@ const InvestmentRequest = () => {
     );
   };
 
-  const transformData = (requests) => {
-    let rows = [];
+  // const transformData = (requests) => {
+  //   let rows = [];
     
-    requests.forEach((request) => {
-      const parentRow = {
-        id: `request-${request.id}`,
-        business_name: request.business_name,
-        description: request.description,
-        requested_amount: request.requested_amount,
-        proposed_share: request.proposed_share,
-        status: request.status,
-        user_name: request.user.name,
-        isParent: true,
-      };
-      rows.push(parentRow);
+  //   requests.forEach((request) => {
+  //     const parentRow = {
+  //       id: `request-${request.id}`,
+  //       business_name: request.business_name,
+  //       description: request.description,
+  //       requested_amount: request.requested_amount,
+  //       proposed_share: request.proposed_share,
+  //       status: request.status,
+  //       user_name: request.user.name,
+  //       isParent: true,
+  //     };
+  //     rows.push(parentRow);
   
-      if (expandedRowId === `request-${request.id}`) {
-        request.investmentOffers.forEach((offer) => {
-          rows.push({
-            id: `offer-${offer.id}`,
-            offer_id: offer.id,
-            offered_amount: offer.offered_amount,
-            offer_proposed_share: offer.proposed_share,
-            offer_status: offer.status,
-            parentId: `request-${request.id}`,
-            isChild: true,
-          });
-        });
-      }
-    });
+  //     if (expandedRowId === `request-${request.id}`) {
+  //       request.investmentOffers.forEach((offer) => {
+  //         rows.push({
+  //           id: `offer-${offer.id}`,
+  //           offer_id: offer.id,
+  //           offered_amount: offer.offered_amount,
+  //           offer_proposed_share: offer.proposed_share,
+  //           offer_status: offer.status,
+  //           parentId: `request-${request.id}`,
+  //           isChild: true,
+  //         });
+  //       });
+  //     }
+  //   });
 
-    return rows;
-  };
+  //   return rows;
+  // };
 
   const parentColumns = [
-    {
-      field: "expand",
-      headerName: "",
-      flex: 0.2,
-      renderCell: (params) => {
-        if (params.row.isParent) {
-          return (
-            <IconButton onClick={() => toggleExpand(params.row.id)}>
-              {expandedRowId === params.row.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-            </IconButton>
-          );
-        }
-        return null;
-      },
-    },
+    { field: "id", headerName: "ID", flex: 0.5 },
     { field: "business_name", headerName: "Business Name", flex: 1 },
     { field: "description", headerName: "Description", flex: 1 },
     {
       field: "requested_amount",
       headerName: "Requested Amount",
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      flex: 1
     },
     {
       field: "proposed_share",
       headerName: "Proposed Share (%)",
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      flex: 1
     },
     {
       field: "status",
@@ -218,8 +218,11 @@ const InvestmentRequest = () => {
     },
     {
       field: "user_name",
-      headerName: "Investor Name",
+      headerName: "Request Person",
       flex: 1,
+      renderCell:(params)=>{
+        return params.row.user?.name||"N/A"
+      }
     },
     {
       field: "actions",
@@ -244,39 +247,39 @@ const InvestmentRequest = () => {
     },
   ];
 
-  const childColumns = [
-    { field: "offer_id", headerName: "Offer ID", flex: 0.5 },
-    { field: "offered_amount", headerName: "Offered Amount", flex: 1 },
-    { field: "offer_proposed_share", headerName: "Proposed Share (%)", flex: 1 },
-    { field: "offer_status", headerName: "Offer Status", flex: 1,
-      renderCell: (params) => (
-        <Box
-          display="flex"
-          alignItems="center"
-          width="100%"
-          height="100%"
-          onMouseEnter={(event) => handleInvestmentOfferStatusMenuOpen(event, params.row.id)}
-          onMouseLeave={handleInvestmentOfferStatusMenuClose}
-        >
-          <Typography>{params.value}</Typography>
-          <Popover
-            open={Boolean(investmentOfferStatusAnchorEl) && hoveredInvestmentOfferId === params.row.id}
-            anchorEl={investmentOfferStatusAnchorEl}
-            onClose={handleInvestmentOfferStatusMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-          >
-            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'pending')}>Pending</MenuItem>
-            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'accepted')}>Accepted</MenuItem>
-            <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'rejected')}>Rejected</MenuItem>
+  // const childColumns = [
+  //   { field: "offer_id", headerName: "Offer ID", flex: 0.5 },
+  //   { field: "offered_amount", headerName: "Offered Amount", flex: 1 },
+  //   { field: "offer_proposed_share", headerName: "Proposed Share (%)", flex: 1 },
+  //   { field: "offer_status", headerName: "Offer Status", flex: 1,
+  //     renderCell: (params) => (
+  //       <Box
+  //         display="flex"
+  //         alignItems="center"
+  //         width="100%"
+  //         height="100%"
+  //         onMouseEnter={(event) => handleInvestmentOfferStatusMenuOpen(event, params.row.id)}
+  //         onMouseLeave={handleInvestmentOfferStatusMenuClose}
+  //       >
+  //         <Typography>{params.value}</Typography>
+  //         <Popover
+  //           open={Boolean(investmentOfferStatusAnchorEl) && hoveredInvestmentOfferId === params.row.id}
+  //           anchorEl={investmentOfferStatusAnchorEl}
+  //           onClose={handleInvestmentOfferStatusMenuClose}
+  //           anchorOrigin={{
+  //             vertical: 'bottom',
+  //             horizontal: 'left',
+  //           }}
+  //         >
+  //           <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'pending')}>Pending</MenuItem>
+  //           <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'accepted')}>Accepted</MenuItem>
+  //           <MenuItem onClick={() => handleInvestmentOfferStatusChange(params.row.id, 'rejected')}>Rejected</MenuItem>
             
-          </Popover>
-        </Box>
-      ),
-    },
-  ];
+  //         </Popover>
+  //       </Box>
+  //     ),
+  //   },
+  // ];
 
   const dispatch = useDispatch();
   const { investmentRequests, loading, error } = useSelector((state) => state.investmentRequests);
@@ -285,16 +288,16 @@ const InvestmentRequest = () => {
     dispatch(investementRequestList());
   }, [dispatch]);
 
-  const rows = transformData(investmentRequests);
+  // const rows = transformData(investmentRequests);
 
-  useEffect(() => {
-    if (rows.length > 0) {
-      const firstParent = rows.find(row => row.isParent);
-      if (firstParent) {
-        setFirstParentId(firstParent.id);
-      }
-    }
-  }, [rows]);
+  // useEffect(() => {
+  //   if (rows.length > 0) {
+  //     const firstParent = rows.find(row => row.isParent);
+  //     if (firstParent) {
+  //       setFirstParentId(firstParent.id);
+  //     }
+  //   }
+  // }, [rows]);
 
   return (
     <Box m="20px">
@@ -310,7 +313,8 @@ const InvestmentRequest = () => {
             borderBottom: "none",
           },
           "& .MuiDataGrid-columnHeaders": {
-            display: "none", // Hide column headers by default for parent rows
+            backgroundColor: colors.blueAccent[700],
+            borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],
@@ -319,15 +323,9 @@ const InvestmentRequest = () => {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
           },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
         }}
       >
-        {rows.map((row, index) => {
+        {/* {rows.map((row, index) => {
           if (row.isParent) {
             return (
               <div key={row.id}>
@@ -369,7 +367,12 @@ const InvestmentRequest = () => {
             );
           }
           return null;
-        })}
+        })} */}
+        <DataGrid
+          rows={investmentRequests}
+          columns={parentColumns}
+          components={{ Toolbar: GridToolbar }}
+        />
       </Box>
       <InvestmentRequestDetails open={openDetailsDialog} handleClose={handleCloseDetailsDialog} investmentRequestData={selectedInvestmentRequest} colors={colors} />
       <ToastContainer />

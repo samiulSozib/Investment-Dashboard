@@ -14,7 +14,7 @@ const Category = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
-  const { categories } = useSelector(state => state.category);
+  const { categories,totalItems } = useSelector(state => state.category);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
@@ -22,10 +22,12 @@ const Category = () => {
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [page, setPage] = useState(0); 
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    dispatch(categoryList());
-  }, [dispatch]);
+    dispatch(categoryList(page+1,pageSize));
+  }, [dispatch,page,pageSize]);
 
   const handleMenuOpen = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -139,7 +141,26 @@ const Category = () => {
           "& .MuiDataGrid-footerContainer": { backgroundColor: colors.blueAccent[700] },
         }}
       >
-        <DataGrid rows={categories} columns={columns} components={{ Toolbar: GridToolbar }} />
+        
+        <DataGrid 
+          rows={categories} 
+          columns={columns} 
+          pagination
+          paginationMode="server"
+          rowCount={totalItems}
+          paginationModel={{
+            page: page,
+            pageSize: pageSize,
+          }}  // Control pagination fully with this model
+          onPaginationModelChange={(model) => {
+            setPage(model.page);       // Update the page state
+            setPageSize(model.pageSize);  // Update the pageSize state
+          }}
+          pageSizeOptions={[3, 10, 20]}
+          
+          components={{ Toolbar: GridToolbar 
+
+          }} />
       </Box>
 
       <Dialog open={open} onClose={handleClose}>
